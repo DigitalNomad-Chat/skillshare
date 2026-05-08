@@ -197,6 +197,12 @@ skillshare sync --all                 # sync skills + extras together
 skillshare extras collect rules       # collect local files back to source
 ```
 
+**Shell completion** —tab-complete commands, flags, and subcommands
+
+```bash
+skillshare completion bash --install   # also: zsh, fish, powershell, nushell
+```
+
 **Web dashboard** —visual control panel
 
 ```bash

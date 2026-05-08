@@ -23,6 +23,7 @@ Complete reference for all skillshare commands.
 | Manage single-file `.md` agents | Most commands accept `agents` or `--kind agent` — see [Agents](/docs/understand/agents) |
 | See which skills use the most context tokens | [`analyze`](./analyze.md) |
 | Fix something broken | [`doctor`](./doctor.md) |
+| Enable tab-completion in my shell | [`completion`](./completion.md) |
 | Open the web dashboard | [`ui`](./ui.md) |
 
 ---
@@ -36,7 +37,7 @@ Complete reference for all skillshare commands.
 | **Target Management** | `target`, `diff` |
 | **Extras Management** | `extras` (`init`, `list`, `remove`, `collect`) |
 | **Sync Operations** | `collect`, `backup`, `restore`, `trash`, `push`, `pull` |
-| **Security & Utilities** | `analyze`, `audit`, `hub`, `log`, `doctor`, `tui`, `ui`, `version` |
+| **Security & Utilities** | `analyze`, `audit`, `hub`, `log`, `doctor`, `tui`, `ui`, `completion`, `version` |
 
 ---
 
@@ -97,6 +98,7 @@ Complete reference for all skillshare commands.
 | [tui](./tui.md) | Toggle interactive TUI mode |
 | [ui](./ui.md) | Launch web dashboard |
 | [hub](./hub.md) | Manage skill hub sources |
+| [completion](./completion.md) | Generate shell completion scripts |
 | [version](./version.md) | Show CLI version |
 
 ---
@@ -170,6 +172,10 @@ skillshare check
 # Trash management
 skillshare trash list
 skillshare trash restore my-skill
+
+# Shell completion
+skillshare completion bash --install
+skillshare completion zsh --install
 
 # Version
 skillshare version

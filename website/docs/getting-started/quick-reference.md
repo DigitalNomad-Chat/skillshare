@@ -93,6 +93,7 @@ Command cheat sheet for skillshare.
 | `log` | View operations and audit logs |
 | `ui` | Launch web dashboard on `localhost:19420` |
 | `ui -p` | Launch web dashboard in project mode |
+| `completion <shell> --install` | Install shell tab-completion (bash/zsh/fish/powershell/nushell) |
 | `version` | Show CLI version |
 | `make test-docker` | Run offline Docker sandbox tests |
 | `make playground` | Start playground + enter shell (one step) |
