@@ -28,32 +28,6 @@ const INSTALL_COMMANDS: Record<InstallMethod, {command: string; label: string; i
   },
 };
 
-// Slight random rotations for hand-drawn card feel
-const CARD_ROTATIONS = [
-  'rotate(-0.8deg)',
-  'rotate(0.5deg)',
-  'rotate(-0.3deg)',
-  'rotate(0.7deg)',
-  'rotate(-0.5deg)',
-  'rotate(0.4deg)',
-];
-
-function WavyDivider({color = 'var(--color-muted-dark)'}: {color?: string}) {
-  return (
-    <div className={styles.wavyDivider} aria-hidden="true">
-      <svg viewBox="0 0 1200 40" preserveAspectRatio="none">
-        <path
-          d="M0,20 Q150,0 300,20 T600,20 T900,20 T1200,20"
-          fill="none"
-          stroke={color}
-          strokeWidth="2"
-          strokeDasharray="8,6"
-        />
-      </svg>
-    </div>
-  );
-}
-
 function CopyButton({text}: {text: string}) {
   const [copied, setCopied] = useState(false);
 
@@ -111,9 +85,6 @@ function HeroSection() {
           <div className={styles.heroLogoWrapper}>
             <div className={styles.heroLogoRing} aria-hidden="true" />
             <div className={styles.heroLogoShadow} aria-hidden="true" />
-            <span className={styles.heroLogoSparkle} aria-hidden="true">*</span>
-            <span className={styles.heroLogoSparkle} aria-hidden="true">+</span>
-            <span className={styles.heroLogoSparkle} aria-hidden="true">*</span>
             <img
               src="/img/logo.png"
               alt="skillshare"
@@ -121,42 +92,10 @@ function HeroSection() {
             />
           </div>
 
-          {/* Hand-drawn connector line between logo and title */}
-          <svg
-            className={styles.heroConnector}
-            viewBox="0 0 120 24"
-            aria-hidden="true"
-          >
-            <path
-              d="M60,2 C58,8 54,12 52,16 C50,20 56,20 60,22 C64,20 70,20 68,16 C66,12 62,8 60,2"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeDasharray="4,3"
-              strokeLinecap="round"
-            />
-          </svg>
-
           <Heading as="h1" className={styles.heroTitle}>
             One source of truth for{' '}
             <span className={styles.heroTitleAccent}>AI CLI skills</span>
           </Heading>
-
-          {/* Hand-drawn underline beneath the title */}
-          <svg
-            className={styles.heroUnderline}
-            viewBox="0 0 400 12"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M8,8 C50,3 100,6 150,5 C200,4 250,7 300,5 C350,3 380,6 392,7"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            />
-          </svg>
         </div>
 
         <p className={styles.heroSubtitle}>
@@ -227,7 +166,6 @@ function ScenarioSection() {
               key={idx}
               to={scenario.link}
               className={styles.scenarioCard}
-              style={{transform: CARD_ROTATIONS[idx % CARD_ROTATIONS.length]}}
             >
               <div className={styles.scenarioIcon}>{scenario.icon}</div>
               <h3>{scenario.title}</h3>
@@ -333,7 +271,6 @@ function WhySection() {
             <div
               key={idx}
               className={styles.whyCard}
-              style={{transform: CARD_ROTATIONS[idx]}}
             >
               <div className={styles.whyIconWrapper}>
                 <item.Icon size={22} strokeWidth={1.5} />
@@ -355,7 +292,6 @@ function DemoSection() {
     <section className={styles.demo}>
       <div className="container">
         <div className={styles.demoContainer}>
-          <div className={styles.tapeDecoration} aria-hidden="true" />
           <img src="/img/demo.gif" alt="skillshare demo" />
         </div>
       </div>
@@ -430,14 +366,10 @@ export default function Home(): ReactNode {
       <div className={styles.homePage}>
         <HeroSection />
         <ScenarioSection />
-        <WavyDivider />
         <main>
           <WhySection />
-          <WavyDivider />
           <DemoSection />
-          <WavyDivider />
           <UIHighlightsSection />
-          <WavyDivider />
           <SupportedSection />
         </main>
       </div>

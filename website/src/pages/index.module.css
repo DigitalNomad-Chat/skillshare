@@ -1,17 +1,12 @@
 /* ========================================
-   Homepage — Dot grid background (moved from body)
+   Homepage — Clean modern style
    ======================================== */
 .homePage {
-  background-image: radial-gradient(var(--color-muted) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-:global([data-theme='dark']) .homePage {
-  background-image: radial-gradient(rgba(61, 56, 53, 0.6) 1px, transparent 1px);
+  background: var(--color-paper);
 }
 
 /* ========================================
-   Hero Section — Hand-drawn
+   Hero Section
    ======================================== */
 .hero {
   padding: 6rem 0 4rem;
@@ -20,7 +15,7 @@
   overflow: hidden;
 }
 
-/* Shared group: logo + connector + title + underline act as one visual unit */
+/* Shared group: logo + title act as one visual unit */
 .heroGroup {
   display: flex;
   flex-direction: column;
@@ -28,7 +23,7 @@
   margin-bottom: 0.25rem;
 }
 
-/* Logo wrapper: sketchy dashed circle frame */
+/* Logo wrapper */
 .heroLogoWrapper {
   position: relative;
   display: inline-block;
@@ -36,81 +31,29 @@
   animation: logoEntrance 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-/* The dashed ring behind the logo */
+/* Subtle ring behind the logo */
 .heroLogoRing {
   position: absolute;
-  inset: -18px;
-  border: 3px dashed var(--color-muted-dark);
-  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-  opacity: 0.5;
+  inset: -14px;
+  border: 2px solid var(--color-muted);
+  border-radius: 50%;
+  opacity: 0.4;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   pointer-events: none;
 }
 
 :global([data-theme='dark']) .heroLogoRing {
-  border-color: rgba(232, 168, 76, 0.35);
+  border-color: rgba(60, 126, 255, 0.3);
 }
 
 .heroLogoWrapper:hover .heroLogoRing {
-  inset: -24px;
-  opacity: 0.8;
+  inset: -18px;
+  opacity: 0.6;
   border-color: var(--color-blue);
-  transform: rotate(3deg);
 }
 
 :global([data-theme='dark']) .heroLogoWrapper:hover .heroLogoRing {
   border-color: var(--color-blue);
-}
-
-/* Decorative pen marks / sparkles around the logo */
-.heroLogoSparkle {
-  position: absolute;
-  font-size: 1.2rem;
-  color: var(--color-muted-dark);
-  pointer-events: none;
-  opacity: 0;
-  animation: sparkleFadeIn 0.8s ease forwards;
-}
-
-:global([data-theme='dark']) .heroLogoSparkle {
-  color: rgba(232, 168, 76, 0.5);
-}
-
-.heroLogoSparkle:nth-child(2) {
-  top: -10px;
-  right: -8px;
-  animation-delay: 0.4s;
-}
-
-.heroLogoSparkle:nth-child(3) {
-  bottom: 8px;
-  left: -14px;
-  animation-delay: 0.6s;
-  font-size: 0.9rem;
-}
-
-.heroLogoSparkle:nth-child(4) {
-  top: 12px;
-  left: -10px;
-  animation-delay: 0.8s;
-  font-size: 0.8rem;
-}
-
-@keyframes sparkleFadeIn {
-  0% { opacity: 0; transform: scale(0) rotate(-20deg); }
-  100% { opacity: 1; transform: scale(1) rotate(0deg); }
-}
-
-.heroLogoWrapper:hover .heroLogoSparkle {
-  animation: sparkleWiggle 0.4s ease-in-out;
-}
-
-@keyframes sparkleWiggle {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(12deg); }
-  50% { transform: rotate(-10deg); }
-  75% { transform: rotate(6deg); }
-  100% { transform: rotate(0deg); }
 }
 
 /* The actual logo image */
@@ -119,129 +62,77 @@
   height: auto;
   display: block;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  animation: logoFloat 4s ease-in-out infinite;
-}
-
-@keyframes logoFloat {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-4px) rotate(0.5deg); }
-  75% { transform: translateY(3px) rotate(-0.5deg); }
 }
 
 @keyframes logoEntrance {
   0% {
     opacity: 0;
-    transform: scale(0.3) rotate(-8deg);
+    transform: scale(0.3);
   }
   100% {
     opacity: 1;
-    transform: scale(1) rotate(0deg);
+    transform: scale(1);
   }
 }
 
 .heroLogoWrapper:hover .heroLogo {
-  animation: none;
-  transform: rotate(-3deg) scale(1.06);
+  transform: scale(1.06);
 }
 
-/* Hard offset shadow for the dashed ring — consistent with design system */
+/* Subtle shadow for the logo */
 .heroLogoShadow {
   position: absolute;
-  inset: -18px;
-  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-  border: 3px dashed transparent;
-  background: rgba(45, 45, 45, 0.05);
-  transform: translate(4px, 4px);
+  inset: -14px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: rgba(22, 93, 255, 0.04);
+  transform: translate(3px, 3px);
   z-index: -1;
   pointer-events: none;
   transition: transform 0.3s ease;
 }
 
 :global([data-theme='dark']) .heroLogoShadow {
-  background: rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.15);
 }
 
 .heroLogoWrapper:hover .heroLogoShadow {
-  inset: -24px;
-  transform: translate(3px, 3px);
+  inset: -18px;
+  transform: translate(2px, 2px);
 }
 
-/* Hide sparkles and connector on small screens */
+/* Hide on small screens */
 @media (max-width: 640px) {
-  .heroLogoSparkle {
-    display: none;
-  }
-
   .heroLogoRing {
-    inset: -12px;
-    border-width: 2px;
+    inset: -10px;
+    border-width: 1.5px;
   }
 
   .heroLogo {
     width: 180px;
   }
-
-  .heroConnector {
-    display: none;
-  }
-}
-
-/* Hand-drawn drop connector between logo and title */
-.heroConnector {
-  width: 32px;
-  height: 16px;
-  color: var(--color-muted-dark);
-  opacity: 0;
-  animation: connectorFadeIn 0.4s ease 0.5s forwards;
-  flex-shrink: 0;
-}
-
-:global([data-theme='dark']) .heroConnector {
-  color: rgba(232, 168, 76, 0.4);
-}
-
-@keyframes connectorFadeIn {
-  0% { opacity: 0; transform: scaleY(0); }
-  100% { opacity: 0.6; transform: scaleY(1); }
 }
 
 .heroTitle {
-  font-family: 'Kalam', cursive;
+  font-family: 'Inter', sans-serif;
   font-size: 3rem;
   font-weight: 700;
   margin-bottom: 0;
   color: var(--color-pencil);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   opacity: 0;
   animation: titleSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
 }
 
-/* Chalk white in dark mode — no gradient text */
 :global([data-theme='dark']) .heroTitle {
   color: var(--color-pencil);
 }
 
-/* Accent highlight on "AI CLI skills" — post-it yellow background */
+/* Accent highlight on "AI CLI skills" */
 .heroTitleAccent {
   position: relative;
   white-space: nowrap;
-}
-
-.heroTitleAccent::before {
-  content: '';
-  position: absolute;
-  left: -4px;
-  right: -4px;
-  bottom: 2px;
-  height: 40%;
-  background: var(--color-postit);
-  border-radius: 3px;
-  z-index: -1;
-  transform: rotate(-0.5deg);
-}
-
-:global([data-theme='dark']) .heroTitleAccent::before {
-  background: rgba(232, 168, 76, 0.22);
+  color: var(--color-accent);
 }
 
 @keyframes titleSlideIn {
@@ -252,32 +143,6 @@
   100% {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-/* Hand-drawn wavy underline below the title */
-.heroUnderline {
-  width: min(320px, 70%);
-  height: 12px;
-  color: var(--color-blue);
-  opacity: 0;
-  animation: underlineDraw 0.6s ease 0.65s forwards;
-  margin-top: 2px;
-  margin-bottom: 0.75rem;
-}
-
-:global([data-theme='dark']) .heroUnderline {
-  color: var(--color-blue);
-}
-
-@keyframes underlineDraw {
-  0% {
-    opacity: 0;
-    clip-path: inset(0 100% 0 0);
-  }
-  100% {
-    opacity: 0.7;
-    clip-path: inset(0 0 0 0);
   }
 }
 
@@ -324,8 +189,8 @@
   gap: 0.4rem;
   padding: 0.5rem 1rem;
   background: transparent;
-  border: 2px dashed var(--color-muted-dark);
-  border-radius: var(--radius-wobbly-sm);
+  border: 1px solid var(--color-muted);
+  border-radius: 6px;
   color: var(--muted-text);
   font-size: 0.8rem;
   font-weight: 500;
@@ -340,27 +205,27 @@
 }
 
 .installTabActive {
-  background: var(--color-postit);
-  border: 2px solid var(--color-pencil);
-  color: var(--color-pencil);
+  background: var(--color-accent-light);
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
   font-weight: 600;
 }
 
 :global([data-theme='dark']) .installTab {
-  border-color: rgba(240, 236, 225, 0.25);
+  border-color: rgba(255, 255, 255, 0.15);
   color: var(--color-pencil-light);
 }
 
 :global([data-theme='dark']) .installTab:hover {
-  background: rgba(232, 168, 76, 0.12);
+  background: rgba(60, 126, 255, 0.1);
   border-color: var(--color-blue);
   color: var(--color-pencil);
 }
 
 :global([data-theme='dark']) .installTabActive {
-  background: rgba(232, 168, 76, 0.18);
-  border: 2px solid var(--color-blue);
-  color: var(--color-pencil);
+  background: rgba(60, 126, 255, 0.15);
+  border: 1px solid var(--color-blue);
+  color: var(--color-blue);
 }
 
 /* ========================================
@@ -371,20 +236,20 @@
   align-items: center;
   gap: 1rem;
   background: rgba(15, 23, 42, 0.95);
-  border: 2px solid #101827;
-  border-radius: var(--radius-wobbly-sm);
+  border: 1px solid #1e293b;
+  border-radius: 8px;
   padding: 0.875rem 1.5rem;
   font-family: var(--ifm-font-family-monospace);
   font-size: 0.875rem;
   max-width: 100%;
   overflow-x: auto;
-  box-shadow: 4px 4px 0px 0px #101827;
+  box-shadow: var(--shadow-md);
 }
 
 :global([data-theme='dark']) .installCommand {
-  background: rgba(20, 18, 16, 0.95);
-  border: 2px solid rgba(240, 236, 225, 0.25);
-  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.55);
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .installCommand code {
@@ -397,14 +262,14 @@
 }
 
 .prompt {
-  color: #2e8b57;
+  color: #00b42a;
   margin-right: 0.5rem;
   font-weight: 600;
 }
 
 .copyButton {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: #94a3b8;
   padding: 0.5rem 0.75rem;
   border-radius: 6px;
@@ -418,8 +283,8 @@
 }
 
 .copyButton:hover {
-  background: rgba(232, 168, 76, 0.2);
-  border-color: rgba(232, 168, 76, 0.5);
+  background: rgba(22, 93, 255, 0.2);
+  border-color: rgba(22, 93, 255, 0.5);
   color: #f8fafc;
 }
 
@@ -431,7 +296,7 @@
 }
 
 /* ========================================
-   Scenario Section — "Where would you like to start?"
+   Scenario Section
    ======================================== */
 .scenarioSection {
   padding: 4rem 0 2rem;
@@ -453,23 +318,24 @@
   text-decoration: none;
   color: inherit;
   background: var(--card-bg);
-  border: 2px solid var(--color-pencil);
-  border-radius: var(--radius-wobbly-md);
+  border: 1px solid var(--color-muted);
+  border-radius: 8px;
   padding: 1.5rem 1rem;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
 }
 
 .scenarioCard:hover {
   box-shadow: var(--shadow-hover);
-  transform: translate(1px, 1px) rotate(-0.5deg) !important;
+  transform: translateY(-2px);
   text-decoration: none;
   color: inherit;
+  border-color: var(--color-blue);
 }
 
 :global([data-theme='dark']) .scenarioCard {
   background: var(--card-bg);
-  border-color: rgba(240, 236, 225, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 :global([data-theme='dark']) .scenarioCard:hover {
@@ -485,64 +351,64 @@
   height: 52px;
   border-radius: 10px;
   margin-bottom: 0.75rem;
-  border: 1px solid var(--color-pencil);
-  background: #d6e4f0;
-  color: #2d5da1;
+  border: 1px solid var(--color-muted);
+  background: #e8f3ff;
+  color: #165dff;
 }
 
 .scenarioCard:nth-child(2) .scenarioIcon {
-  background: #d4edda;
-  color: #2e8b57;
+  background: #e8ffea;
+  color: #00b42a;
 }
 
 .scenarioCard:nth-child(3) .scenarioIcon {
-  background: #fff3cd;
-  color: #d4870e;
+  background: #fff7e8;
+  color: #ff7d00;
 }
 
 .scenarioCard:nth-child(4) .scenarioIcon {
-  background: #e8dff0;
-  color: #6b3fa0;
+  background: #f0e8ff;
+  color: #722ed1;
 }
 
 .scenarioCard:nth-child(5) .scenarioIcon {
-  background: #f8d7da;
-  color: #c0392b;
+  background: #ffece8;
+  color: #f53f3f;
 }
 
 :global([data-theme='dark']) .scenarioIcon {
-  border-color: var(--card-border);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 :global([data-theme='dark']) .scenarioCard:nth-child(1) .scenarioIcon {
-  background: rgba(107, 163, 214, 0.18);
-  color: #7db8e8;
+  background: rgba(22, 93, 255, 0.15);
+  color: #3c7eff;
 }
 
 :global([data-theme='dark']) .scenarioCard:nth-child(2) .scenarioIcon {
-  background: rgba(92, 184, 122, 0.18);
-  color: #6dca8e;
+  background: rgba(0, 180, 42, 0.15);
+  color: #27c346;
 }
 
 :global([data-theme='dark']) .scenarioCard:nth-child(3) .scenarioIcon {
-  background: rgba(232, 168, 64, 0.18);
-  color: #e8a840;
+  background: rgba(255, 125, 0, 0.15);
+  color: #ff9626;
 }
 
 :global([data-theme='dark']) .scenarioCard:nth-child(4) .scenarioIcon {
-  background: rgba(160, 100, 220, 0.18);
-  color: #b088d0;
+  background: rgba(114, 46, 209, 0.15);
+  color: #a875e8;
 }
 
 :global([data-theme='dark']) .scenarioCard:nth-child(5) .scenarioIcon {
-  background: rgba(224, 90, 79, 0.18);
-  color: #e05a4f;
+  background: rgba(245, 63, 63, 0.15);
+  color: #f76965;
 }
 
 .scenarioCard h3 {
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 600;
   margin: 0 0 0.35rem;
   color: var(--color-pencil);
 }
@@ -564,21 +430,6 @@
   .scenarioGrid {
     grid-template-columns: 1fr;
   }
-}
-
-/* ========================================
-   Wavy Divider
-   ======================================== */
-.wavyDivider {
-  display: block;
-  width: 100%;
-  height: 40px;
-  overflow: hidden;
-}
-
-.wavyDivider svg {
-  width: 100%;
-  height: 100%;
 }
 
 /* ========================================
@@ -619,21 +470,22 @@
 
 .whyCard {
   background: var(--card-bg);
-  border: 2px solid var(--color-pencil);
-  border-radius: var(--radius-wobbly-md);
+  border: 1px solid var(--color-muted);
+  border-radius: 8px;
   padding: 1.5rem;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
 }
 
 :global([data-theme='dark']) .whyCard {
   background: var(--card-bg);
-  border-color: rgba(240, 236, 225, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .whyCard:hover {
   box-shadow: var(--shadow-hover);
-  transform: translate(1px, 1px) rotate(-0.5deg);
+  transform: translateY(-2px);
+  border-color: var(--color-blue);
 }
 
 :global([data-theme='dark']) .whyCard:hover {
@@ -641,7 +493,7 @@
   border-color: var(--color-blue);
 }
 
-/* Post-it colored icon backgrounds */
+/* Icon backgrounds */
 .whyIconWrapper {
   display: flex;
   align-items: center;
@@ -650,78 +502,77 @@
   height: 44px;
   border-radius: 8px;
   margin-bottom: 1rem;
-  border: 1px solid var(--color-pencil);
+  border: 1px solid var(--color-muted);
 }
 
-/* Icon color palette (post-it / accent tones) */
 .whyCard:nth-child(1) .whyIconWrapper {
-  background: #d6e4f0;
-  color: #2d5da1;
+  background: #e8f3ff;
+  color: #165dff;
 }
 
 .whyCard:nth-child(2) .whyIconWrapper {
-  background: #d4edda;
-  color: #2e8b57;
+  background: #e8ffea;
+  color: #00b42a;
 }
 
 .whyCard:nth-child(3) .whyIconWrapper {
-  background: #fff3cd;
-  color: #d4870e;
+  background: #fff7e8;
+  color: #ff7d00;
 }
 
 .whyCard:nth-child(4) .whyIconWrapper {
-  background: #f8d7da;
-  color: #c0392b;
+  background: #ffece8;
+  color: #f53f3f;
 }
 
 .whyCard:nth-child(5) .whyIconWrapper {
-  background: #fff9c4;
-  color: #5a5a5a;
+  background: #fff9e8;
+  color: #86909c;
 }
 
 .whyCard:nth-child(6) .whyIconWrapper {
-  background: #e8dff0;
-  color: #6b3fa0;
+  background: #f0e8ff;
+  color: #722ed1;
 }
 
 :global([data-theme='dark']) .whyIconWrapper {
-  border-color: var(--card-border);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 :global([data-theme='dark']) .whyCard:nth-child(1) .whyIconWrapper {
-  background: rgba(107, 163, 214, 0.18);
-  color: #7db8e8;
+  background: rgba(22, 93, 255, 0.15);
+  color: #3c7eff;
 }
 
 :global([data-theme='dark']) .whyCard:nth-child(2) .whyIconWrapper {
-  background: rgba(92, 184, 122, 0.18);
-  color: #6dca8e;
+  background: rgba(0, 180, 42, 0.15);
+  color: #27c346;
 }
 
 :global([data-theme='dark']) .whyCard:nth-child(3) .whyIconWrapper {
-  background: rgba(232, 168, 64, 0.18);
-  color: #e8a840;
+  background: rgba(255, 125, 0, 0.15);
+  color: #ff9626;
 }
 
 :global([data-theme='dark']) .whyCard:nth-child(4) .whyIconWrapper {
-  background: rgba(224, 90, 79, 0.18);
-  color: #e05a4f;
+  background: rgba(245, 63, 63, 0.15);
+  color: #f76965;
 }
 
 :global([data-theme='dark']) .whyCard:nth-child(5) .whyIconWrapper {
-  background: rgba(232, 168, 76, 0.12);
-  color: #c4b8a0;
+  background: rgba(134, 144, 156, 0.15);
+  color: #a9aeb8;
 }
 
 :global([data-theme='dark']) .whyCard:nth-child(6) .whyIconWrapper {
-  background: rgba(160, 100, 220, 0.18);
-  color: #b088d0;
+  background: rgba(114, 46, 209, 0.15);
+  color: #a875e8;
 }
 
 .whyCardTitle {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   color: var(--color-pencil);
 }
@@ -755,45 +606,27 @@
 .demoContainer {
   max-width: 960px;
   margin: 0 auto;
-  border-radius: var(--radius-wobbly-md);
+  border-radius: 8px;
   overflow: hidden;
-  border: 2px solid var(--color-pencil);
+  border: 1px solid var(--color-muted);
   box-shadow: var(--shadow-lg);
   transition: all 0.2s ease;
   position: relative;
 }
 
 .demoContainer:hover {
-  box-shadow: var(--shadow-md);
-  transform: translate(4px, 4px);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
 }
 
 :global([data-theme='dark']) .demoContainer {
-  border-color: rgba(240, 236, 225, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .demoContainer img {
   width: 100%;
   height: auto;
   display: block;
-}
-
-/* Tape decoration on demo */
-.tapeDecoration {
-  position: absolute;
-  top: -6px;
-  left: 50%;
-  transform: translateX(-50%) rotate(-2deg);
-  width: 80px;
-  height: 24px;
-  background: rgba(255, 249, 196, 0.85);
-  border: 1px solid rgba(45, 45, 45, 0.15);
-  z-index: 2;
-}
-
-:global([data-theme='dark']) .tapeDecoration {
-  background: rgba(232, 168, 76, 0.25);
-  border-color: rgba(232, 228, 217, 0.12);
 }
 
 /* ========================================
@@ -816,22 +649,23 @@
 }
 
 .uiHighlightCard {
-  border: 2px solid var(--color-pencil);
-  border-radius: var(--radius-wobbly-md);
+  border: 1px solid var(--color-muted);
+  border-radius: 8px;
   overflow: hidden;
   background: var(--card-bg);
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
 }
 
 :global([data-theme='dark']) .uiHighlightCard {
   background: var(--card-bg);
-  border-color: rgba(240, 236, 225, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .uiHighlightCard:hover {
   box-shadow: var(--shadow-hover);
-  transform: translate(1px, 1px);
+  transform: translateY(-2px);
+  border-color: var(--color-blue);
 }
 
 :global([data-theme='dark']) .uiHighlightCard:hover {
@@ -851,7 +685,7 @@
 .uiHighlightTitle {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 0.35rem;
   color: var(--color-pencil);
 }
@@ -900,16 +734,15 @@
   color: var(--color-pencil-light);
   transition: all 0.15s ease;
   padding: 0.4rem 0.8rem;
-  border-radius: var(--radius-wobbly-sm);
-  border: 1px dashed var(--color-muted-dark);
+  border-radius: 6px;
+  border: 1px solid var(--color-muted);
   font-weight: 500;
 }
 
 .cliLogos span:hover {
   color: var(--color-pencil);
-  border-color: var(--color-pencil);
+  border-color: var(--color-blue);
   background: var(--color-paper-warm);
-  transform: rotate(-1deg);
 }
 
 :global([data-theme='dark']) .cliLogos span {
@@ -918,8 +751,8 @@
 
 :global([data-theme='dark']) .cliLogos span:hover {
   color: var(--color-pencil);
-  border-color: var(--color-pencil-light);
-  background: rgba(232, 168, 76, 0.08);
+  border-color: var(--color-blue);
+  background: rgba(60, 126, 255, 0.08);
 }
 
 /* ========================================
@@ -953,8 +786,7 @@
    Accessibility
    ======================================== */
 @media (prefers-reduced-motion: reduce) {
-  .heroLogo,
-  .heroLogoSparkle {
+  .heroLogo {
     animation: none;
   }
 
@@ -962,26 +794,11 @@
     animation: none;
   }
 
-  .heroLogoSparkle {
-    opacity: 1;
-  }
-
   /* Disable staggered entrance animations — show immediately */
   .heroTitle,
-  .heroSubtitle,
-  .heroConnector,
-  .heroUnderline {
+  .heroSubtitle {
     animation: none;
     opacity: 1;
-  }
-
-  .heroConnector {
-    opacity: 0.6;
-  }
-
-  .heroUnderline {
-    opacity: 0.7;
-    clip-path: none;
   }
 
   .whyCard:hover,
@@ -996,9 +813,5 @@
 
   .heroLogoWrapper:hover .heroLogoRing {
     transform: none;
-  }
-
-  .heroLogoWrapper:hover .heroLogoSparkle {
-    animation: none;
   }
 }

@@ -920,176 +920,176 @@
   right: 0;
 }
 
-/* ── Playful theme overrides for Outline ───────────────────── */
-[data-theme="playful"] .ss-skill-editor-outline-trigger {
-  border-width: 2px;
-  border-radius: var(--radius-wobble-badge);
-  box-shadow: 2px 2px 0 var(--color-shadow);
-  transform: rotate(-0.6deg);
+/* ── Professional theme overrides for Outline ───────────────────── */
+[data-theme="professional"] .ss-skill-editor-outline-trigger {
+  border-width: 1px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  transform: none;
 }
-[data-theme="playful"] .ss-skill-editor-outline-trigger:hover {
-  transform: rotate(-0.6deg) translate(-1px, -1px);
-  box-shadow: 3px 3px 0 var(--color-shadow);
+[data-theme="professional"] .ss-skill-editor-outline-trigger:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
-[data-theme="playful"] .ss-skill-editor-outline-trigger:active,
-[data-theme="playful"] .ss-skill-editor-outline-trigger[aria-expanded="true"] {
-  transform: rotate(-0.6deg) translate(2px, 2px);
+[data-theme="professional"] .ss-skill-editor-outline-trigger:active,
+[data-theme="professional"] .ss-skill-editor-outline-trigger[aria-expanded="true"] {
+  transform: translateY(0);
   box-shadow: none;
 }
-[data-theme="playful"] .ss-skill-editor-outline-trigger.sticky {
-  box-shadow: 3px 3px 0 var(--color-shadow);
-  transform: rotate(-1.2deg);
+[data-theme="professional"] .ss-skill-editor-outline-trigger.sticky {
+  box-shadow: var(--shadow-sm);
+  transform: none;
 }
-[data-theme="playful"] .ss-skill-editor-outline-trigger.sticky:hover {
-  transform: rotate(-1.2deg) translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--color-shadow);
+[data-theme="professional"] .ss-skill-editor-outline-trigger.sticky:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
-[data-theme="playful"] .ss-skill-editor-outline-trigger.sticky[aria-expanded="true"] {
-  transform: rotate(-1.2deg) translate(3px, 3px);
+[data-theme="professional"] .ss-skill-editor-outline-trigger.sticky[aria-expanded="true"] {
+  transform: translateY(0);
   box-shadow: none;
 }
-[data-theme="playful"] .ss-skill-editor-outline-trigger .count {
-  border-radius: var(--radius-wobble-badge);
-  border: 1px solid var(--color-pencil);
+[data-theme="professional"] .ss-skill-editor-outline-trigger .count {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-muted);
 }
-[data-theme="playful"] .ss-skill-editor-outline-popover {
-  border-width: 2px;
-  border-radius: var(--radius-wobble-dialog);
-  box-shadow: 4px 4px 0 var(--color-shadow);
-  transform: rotate(-0.3deg);
+[data-theme="professional"] .ss-skill-editor-outline-popover {
+  border-width: 1px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  transform: none;
 }
 
-/* ── Playful theme overrides for keyboard hints (kbd pills) ── */
-[data-theme="playful"] .ss-skill-editor .kbd-hint {
+/* ── Professional theme overrides for keyboard hints (kbd pills) ── */
+[data-theme="professional"] .ss-skill-editor .kbd-hint {
   padding: 1px 7px;
-  border-width: 1.5px;
-  border-radius: var(--radius-wobble-badge);
-  box-shadow: 1.5px 1.5px 0 var(--color-shadow);
+  border-width: 1px;
+  border-radius: var(--radius-sm);
+  box-shadow: none;
   opacity: 0.9;
-  font-family: var(--font-hand, ui-monospace, SFMono-Regular, monospace);
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
 }
-[data-theme="playful"] .ss-skill-editor .pane-head .hint-group:nth-child(odd) .kbd-hint {
-  transform: rotate(-1.2deg);
+[data-theme="professional"] .ss-skill-editor .pane-head .hint-group:nth-child(odd) .kbd-hint {
+  transform: none;
 }
-[data-theme="playful"] .ss-skill-editor .pane-head .hint-group:nth-child(even) .kbd-hint {
-  transform: rotate(1deg);
+[data-theme="professional"] .ss-skill-editor .pane-head .hint-group:nth-child(even) .kbd-hint {
+  transform: none;
 }
-[data-theme="playful"] .ss-skill-editor .pane-head .hint-label {
+[data-theme="professional"] .ss-skill-editor .pane-head .hint-label {
   font-family: var(--font-hand, inherit);
   opacity: 0.85;
 }
 
-/* ── Playful theme overrides for Frontmatter editor ─────────── */
-/* Group cards: wobble radius + hard offset shadow + alternating tilt */
-[data-theme="playful"] .ss-skill-editor .fm-group {
-  border-width: 2px;
+/* ── Professional theme overrides for Frontmatter editor ─────────── */
+[data-theme="professional"] .ss-skill-editor .fm-group {
+  border-width: 1px;
   border-style: solid;
-  border-color: var(--color-pencil);
-  border-radius: var(--radius-wobble-card);
-  box-shadow: 3px 3px 0 var(--color-shadow);
+  border-color: var(--color-muted);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   background: var(--color-paper, #fff);
   padding: 10px 14px 14px 14px;
   transition: transform 0.15s, box-shadow 0.15s;
 }
-[data-theme="playful"] .ss-skill-editor .fm-groups > .fm-group:nth-child(odd) {
-  transform: rotate(-0.4deg);
+[data-theme="professional"] .ss-skill-editor .fm-groups > .fm-group:nth-child(odd) {
+  transform: none;
 }
-[data-theme="playful"] .ss-skill-editor .fm-groups > .fm-group:nth-child(even) {
-  transform: rotate(0.3deg);
+[data-theme="professional"] .ss-skill-editor .fm-groups > .fm-group:nth-child(even) {
+  transform: none;
 }
-[data-theme="playful"] .ss-skill-editor .fm-group-head {
-  font-family: var(--font-hand, inherit);
+[data-theme="professional"] .ss-skill-editor .fm-group-head {
+  font-family: var(--font-heading, inherit);
   font-size: 15px;
 }
-[data-theme="playful"] .ss-skill-editor .fm-group-count {
-  border: 1.5px solid var(--color-pencil);
-  border-radius: var(--radius-wobble-badge);
+[data-theme="professional"] .ss-skill-editor .fm-group-count {
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius-sm);
   background: var(--color-paper-warm);
-  box-shadow: 1.5px 1.5px 0 var(--color-shadow);
+  box-shadow: none;
   padding: 2px 9px;
-  transform: rotate(1.5deg);
+  transform: none;
 }
 
-/* Field inputs: wobble input radius + thicker border */
-[data-theme="playful"] .ss-skill-editor .fm-input {
-  border-width: 1.5px;
-  border-color: var(--color-pencil);
-  border-radius: var(--radius-wobble-input);
+/* Field inputs */
+[data-theme="professional"] .ss-skill-editor .fm-input {
+  border-width: 1px;
+  border-color: var(--color-muted);
+  border-radius: var(--radius-md);
   background: var(--color-paper, #fff);
-  transition: box-shadow 0.15s, transform 0.15s;
+  transition: box-shadow 0.15s, border-color 0.15s;
 }
-[data-theme="playful"] .ss-skill-editor .fm-input:focus {
-  border-color: var(--color-pencil);
-  box-shadow: 2px 2px 0 var(--color-shadow);
-  transform: translate(-1px, -1px);
+[data-theme="professional"] .ss-skill-editor .fm-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-light);
+  transform: none;
 }
 
-/* Tool / path / field chips: wobble badge + sticker feel */
-[data-theme="playful"] .ss-skill-editor .chip {
-  border-width: 1.5px;
-  border-radius: var(--radius-wobble-badge);
-  font-family: var(--font-hand, var(--font-mono, monospace));
-  box-shadow: 1.5px 1.5px 0 var(--color-shadow);
+/* Tool / path / field chips */
+[data-theme="professional"] .ss-skill-editor .chip {
+  border-width: 1px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono, monospace);
+  box-shadow: none;
 }
-[data-theme="playful"] .ss-skill-editor .tool-chips > .chip:nth-child(3n) {
-  transform: rotate(-1.2deg);
+[data-theme="professional"] .ss-skill-editor .tool-chips > .chip:nth-child(3n) {
+  transform: none;
 }
-[data-theme="playful"] .ss-skill-editor .tool-chips > .chip:nth-child(3n+1) {
-  transform: rotate(0.8deg);
+[data-theme="professional"] .ss-skill-editor .tool-chips > .chip:nth-child(3n+1) {
+  transform: none;
 }
-[data-theme="playful"] .ss-skill-editor .tool-chips > .chip:nth-child(3n+2) {
-  transform: rotate(-0.4deg);
+[data-theme="professional"] .ss-skill-editor .tool-chips > .chip:nth-child(3n+2) {
+  transform: none;
 }
-[data-theme="playful"] .ss-skill-editor .chip.add {
-  border: 1.5px dashed var(--color-pencil);
-  box-shadow: 1.5px 1.5px 0 var(--color-shadow);
+[data-theme="professional"] .ss-skill-editor .chip.add {
+  border: 1px dashed var(--color-muted);
+  box-shadow: none;
   background: var(--color-paper, #fff);
-  transition: transform 0.12s, box-shadow 0.12s;
+  transition: all 0.15s ease;
 }
-[data-theme="playful"] .ss-skill-editor .chip.add:hover {
-  transform: translate(-1px, -1px) rotate(-0.8deg);
-  box-shadow: 2.5px 2.5px 0 var(--color-shadow);
+[data-theme="professional"] .ss-skill-editor .chip.add:hover {
+  transform: none;
+  box-shadow: none;
   background: var(--color-paper-warm);
+  border-color: var(--color-accent);
 }
-[data-theme="playful"] .ss-skill-editor .chip.add:active {
-  transform: translate(1.5px, 1.5px);
+[data-theme="professional"] .ss-skill-editor .chip.add:active {
+  transform: none;
   box-shadow: none;
 }
 
-/* Switch toggles: thicker track + wobble + tiny wobble thumb */
-[data-theme="playful"] .ss-skill-editor .switch-track {
-  border-width: 2px;
-  border-radius: var(--radius-wobble-badge);
-  box-shadow: 1.5px 1.5px 0 var(--color-shadow);
+/* Switch toggles */
+[data-theme="professional"] .ss-skill-editor .switch-track {
+  border-width: 1px;
+  border-radius: var(--radius-sm);
+  box-shadow: none;
 }
-[data-theme="playful"] .ss-skill-editor .switch-thumb {
-  border-radius: var(--radius-wobble-badge);
+[data-theme="professional"] .ss-skill-editor .switch-thumb {
+  border-radius: var(--radius-sm);
 }
 
-/* Pinned-fields divider and metadata extras: hand-drawn dash */
-[data-theme="playful"] .ss-skill-editor .fm-grid-pinned,
-[data-theme="playful"] .ss-skill-editor .fm-metadata-extras {
-  border-top-width: 1.5px;
-  border-top-color: var(--color-pencil);
+/* Pinned-fields divider and metadata extras */
+[data-theme="professional"] .ss-skill-editor .fm-grid-pinned,
+[data-theme="professional"] .ss-skill-editor .fm-metadata-extras {
+  border-top-width: 1px;
+  border-top-color: var(--color-muted);
 }
 
 /* Targets section block */
-[data-theme="playful"] .ss-skill-editor .targets-section {
-  border-width: 2px;
-  border-color: var(--color-pencil);
-  border-radius: var(--radius-wobble-card);
-  box-shadow: 3px 3px 0 var(--color-shadow);
+[data-theme="professional"] .ss-skill-editor .targets-section {
+  border-width: 1px;
+  border-color: var(--color-muted);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   background: var(--color-paper, #fff);
-  transform: rotate(-0.2deg);
+  transform: none;
 }
 
 /* Metadata tip card at bottom */
-[data-theme="playful"] .ss-skill-editor .fm-metadata-tip {
-  border-width: 1.5px;
-  border-color: var(--color-pencil);
-  border-radius: var(--radius-wobble-badge);
-  box-shadow: 2px 2px 0 var(--color-shadow);
-  transform: rotate(-0.3deg);
+[data-theme="professional"] .ss-skill-editor .fm-metadata-tip {
+  border-width: 1px;
+  border-color: var(--color-muted);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  transform: none;
 }
 .ss-skill-editor-outline-popover .outline-list {
   list-style: none;

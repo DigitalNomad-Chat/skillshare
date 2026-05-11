@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 
-export type Style = 'clean' | 'playful';
+export type Style = 'clean' | 'professional';
 export type ModePreference = 'light' | 'dark' | 'system';
 export type ResolvedMode = 'light' | 'dark';
 
@@ -17,7 +17,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  style: 'playful',
+  style: 'clean',
   setStyle: () => {},
   modePreference: 'light',
   setModePreference: () => {},
@@ -31,8 +31,8 @@ export function useTheme() {
 }
 
 /** Read ?theme= URL param and persist to localStorage (runs once on load).
- *  Values: 'dark' | 'clean' | 'playful' | 'light'
- *  'clean' implies light mode + clean style; 'playful' implies light mode + playful style. */
+ *  Values: 'dark' | 'clean' | 'professional' | 'light'
+ *  'clean' implies light mode + clean style; 'professional' implies light mode + professional style. */
 function applyUrlThemeParam(): void {
   const p = new URLSearchParams(window.location.search).get('theme')?.toLowerCase();
   if (!p) return;
@@ -41,9 +41,9 @@ function applyUrlThemeParam(): void {
   } else if (p === 'clean') {
     localStorage.setItem('skillshare-theme-preference', 'light');
     localStorage.setItem('skillshare-style', 'clean');
-  } else if (p === 'playful') {
+  } else if (p === 'professional') {
     localStorage.setItem('skillshare-theme-preference', 'light');
-    localStorage.setItem('skillshare-style', 'playful');
+    localStorage.setItem('skillshare-style', 'professional');
   } else if (p === 'light') {
     localStorage.setItem('skillshare-theme-preference', 'light');
   }
@@ -52,12 +52,12 @@ applyUrlThemeParam();
 
 function getInitialStyle(): Style {
   const stored = localStorage.getItem('skillshare-style');
-  if (stored === 'clean') return 'clean';
-  return 'playful';
+  if (stored === 'professional') return 'professional';
+  return 'clean';
 }
 
 function getInitialModePreference(): ModePreference {
-  // Migration: old 'skillshare-theme' key → new 'skillshare-theme-preference'
+  // Migration: old 'skillshare-theme' key -> new 'skillshare-theme-preference'
   const legacy = localStorage.getItem('skillshare-theme');
   if (legacy === 'light' || legacy === 'dark') {
     localStorage.setItem('skillshare-theme-preference', legacy);
@@ -94,8 +94,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // Apply style to DOM
   useEffect(() => {
     const root = document.documentElement;
-    if (style === 'playful') {
-      root.setAttribute('data-theme', 'playful');
+    if (style === 'professional') {
+      root.setAttribute('data-theme', 'professional');
     } else {
       root.removeAttribute('data-theme');
     }
@@ -146,7 +146,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       if (p === 'dark' || p === 'light') {
         applyWithTransition(() => setModePreferenceState(p));
       }
-      if (p === 'playful' || p === 'clean') {
+      if (p === 'professional' || p === 'clean') {
         applyWithTransition(() => setStyleState(p));
       }
     }
@@ -160,7 +160,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     function handleMessage(event: MessageEvent) {
       if (event.data?.type !== 'theme-push') return;
       const { mode, style: newStyle } = event.data;
-      if (newStyle === 'playful' || newStyle === 'clean') {
+      if (newStyle === 'professional' || newStyle === 'clean') {
         applyWithTransition(() => setStyleState(newStyle));
       }
       if (mode === 'dark' || mode === 'light') {

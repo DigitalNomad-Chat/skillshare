@@ -6,7 +6,7 @@ import { useT } from '../i18n';
 
 const styles: { value: Style; label: string }[] = [
   { value: 'clean', label: 'theme.clean' },
-  { value: 'playful', label: 'theme.playful' },
+  { value: 'professional', label: 'theme.professional' },
 ];
 
 const modes: { value: ModePreference; label: string }[] = [

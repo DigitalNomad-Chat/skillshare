@@ -29,9 +29,9 @@ beforeEach(() => {
 });
 
 describe('ThemeContext', () => {
-  it('defaults to playful style and system mode', () => {
+  it('defaults to clean style and system mode', () => {
     const { result } = renderHook(() => useTheme(), { wrapper });
-    expect(result.current.style).toBe('playful');
+    expect(result.current.style).toBe('clean');
     expect(result.current.modePreference).toBe('light');
   });
 
@@ -46,9 +46,9 @@ describe('ThemeContext', () => {
     expect(localStorage.getItem('skillshare-theme-preference')).toBe('dark');
   });
 
-  it('has data-theme=playful by default', () => {
+  it('has no data-theme by default', () => {
     renderHook(() => useTheme(), { wrapper });
-    expect(document.documentElement.getAttribute('data-theme')).toBe('playful');
+    expect(document.documentElement.getAttribute('data-theme')).toBeNull();
   });
 
   it('removes data-theme when switching to clean', () => {
@@ -59,16 +59,16 @@ describe('ThemeContext', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBeNull();
   });
 
-  it('restores data-theme when switching back to playful', () => {
+  it('sets data-theme when switching to professional', () => {
     const { result } = renderHook(() => useTheme(), { wrapper });
+    act(() => {
+      result.current.setStyle('professional');
+    });
+    expect(document.documentElement.getAttribute('data-theme')).toBe('professional');
     act(() => {
       result.current.setStyle('clean');
     });
     expect(document.documentElement.getAttribute('data-theme')).toBeNull();
-    act(() => {
-      result.current.setStyle('playful');
-    });
-    expect(document.documentElement.getAttribute('data-theme')).toBe('playful');
   });
 
   it('toggles dark class based on mode preference', () => {
@@ -120,11 +120,11 @@ describe('URL theme param', () => {
     expect(localStorage.getItem('skillshare-style')).toBe('clean');
   });
 
-  it('?theme=playful persists style to localStorage', async () => {
-    window.history.pushState({}, '', '?theme=playful');
+  it('?theme=professional persists style to localStorage', async () => {
+    window.history.pushState({}, '', '?theme=professional');
     vi.resetModules();
     await import('../ThemeContext');
-    expect(localStorage.getItem('skillshare-style')).toBe('playful');
+    expect(localStorage.getItem('skillshare-style')).toBe('professional');
   });
 
   it('ignores unknown ?theme values', async () => {
@@ -160,7 +160,7 @@ describe('URL theme param — live popstate sync', () => {
 
   it('switches style to clean on popstate with ?theme=clean', () => {
     const { result } = renderHook(() => useTheme(), { wrapper });
-    expect(result.current.style).toBe('playful');
+    expect(result.current.style).toBe('clean');
 
     window.history.pushState({}, '', '?theme=clean');
     act(() => {
@@ -172,7 +172,7 @@ describe('URL theme param — live popstate sync', () => {
 
   it('does nothing on popstate without ?theme param', () => {
     const { result } = renderHook(() => useTheme(), { wrapper });
-    expect(result.current.style).toBe('playful');
+    expect(result.current.style).toBe('clean');
     expect(result.current.resolvedMode).toBe('light');
 
     window.history.pushState({}, '', '?other=value');
@@ -180,7 +180,7 @@ describe('URL theme param — live popstate sync', () => {
       window.dispatchEvent(new PopStateEvent('popstate'));
     });
 
-    expect(result.current.style).toBe('playful');
+    expect(result.current.style).toBe('clean');
     expect(result.current.resolvedMode).toBe('light');
   });
 });

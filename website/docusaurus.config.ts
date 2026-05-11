@@ -234,8 +234,7 @@ const config: Config = {
     mermaid: {
       theme: {light: 'default', dark: 'dark'},
       options: {
-        look: 'handDrawn',
-        handDrawnSeed: 42,
+        look: 'default',
         flowchart: {curve: 'basis', padding: 20},
       },
     },

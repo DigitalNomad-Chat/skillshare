@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="playful">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="./app-icon.png" />
@@ -10,28 +10,27 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Skillshare" />
     <title>Skillshare Web Dashboard</title>
-    <!-- DM Sans (all) + Caveat (Playful headings) — single CDN request -->
+    <!-- Inter + JetBrains Mono — single CDN request -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <script>
-      // FOUC prevention: handle Clean theme + dark mode before first paint
-      // Default is Playful (already set on <html>); only remove for explicit Clean
-      // URL ?theme= param overrides localStorage (values: dark, light, playful, clean)
+      // FOUC prevention: handle theme before first paint
+      // Default is Clean; URL ?theme= param overrides localStorage
       (function() {
         var p = new URLSearchParams(location.search).get('theme');
         if (p) {
           p = p.toLowerCase();
           if (p === 'dark' || p === 'light') localStorage.setItem('skillshare-theme-preference', p);
-          if (p === 'playful' || p === 'clean') localStorage.setItem('skillshare-style', p);
+          if (p === 'professional' || p === 'clean') localStorage.setItem('skillshare-style', p);
         }
         var style = localStorage.getItem('skillshare-style');
         var pref = localStorage.getItem('skillshare-theme-preference');
-        if (style === 'clean') {
-          document.documentElement.removeAttribute('data-theme');
+        if (style === 'professional') {
+          document.documentElement.setAttribute('data-theme', 'professional');
         }
         var dark = pref === 'dark' || (pref === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
         if (dark) document.documentElement.classList.add('dark');

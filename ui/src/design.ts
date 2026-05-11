@@ -13,7 +13,7 @@ export const radius = {
   md: 'var(--radius-md)',
   /** Large elements — modals, panels */
   lg: 'var(--radius-lg)',
-  /** Buttons — pill shape */
+  /** Buttons — rounded shape */
   btn: 'var(--radius-btn)',
   /** Full round — avatars, pills */
   full: 'var(--radius-full)',
@@ -32,9 +32,9 @@ export const shadows = {
 
 /** Semantic colors for inline styles (audit helpers, charts) */
 export const palette = {
-  accent: '#dc4538',
-  info: '#2d5da1',
-  success: '#2e8b57',
-  warning: '#d4870e',
-  danger: '#c0392b',
+  accent: '#165dff',
+  info: '#165dff',
+  success: '#00b42a',
+  warning: '#ff7d00',
+  danger: '#f53f3f',
 } as const;

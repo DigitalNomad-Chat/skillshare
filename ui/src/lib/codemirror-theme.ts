@@ -6,7 +6,7 @@ import { tags } from '@lezer/highlight';
 const handEditorTheme = EditorView.theme({
   '&': {
     fontSize: '14px',
-    fontFamily: "'SFMono-Regular', Menlo, Consolas, monospace",
+    fontFamily: "'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace",
     backgroundColor: 'var(--color-paper-warm)',
     border: 'none',
     borderRadius: '0',
@@ -25,7 +25,7 @@ const handEditorTheme = EditorView.theme({
     color: 'var(--color-muted-dark)',
     border: 'none',
     borderRight: '1px solid var(--color-muted)',
-    fontFamily: "'SFMono-Regular', Menlo, Consolas, monospace",
+    fontFamily: "'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace",
     fontSize: '13px',
   },
   '.cm-activeLineGutter': {
@@ -39,7 +39,7 @@ const handEditorTheme = EditorView.theme({
     backgroundColor: 'var(--color-info-light) !important',
   },
   '&.cm-focused .cm-selectionBackground': {
-    backgroundColor: 'rgba(45, 93, 161, 0.15) !important',
+    backgroundColor: 'rgba(22, 93, 255, 0.15) !important',
   },
   '.cm-matchingBracket': {
     backgroundColor: 'var(--color-info-light)',
