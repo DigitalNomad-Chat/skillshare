@@ -40,7 +40,7 @@
 </p>
 
 > [!NOTE]
-> **Latest**: [v0.19.0](https://github.com/runkids/skillshare/releases/tag/v0.19.0) — agent management, filter studio, unified resources UI. [All releases →](https://github.com/runkids/skillshare/releases)
+> **Latest**: [v0.19.12](https://github.com/runkids/skillshare/releases/tag/v0.19.12) — project `skills:` in config.yaml now preserved (team-sharing fix). [All releases →](https://github.com/runkids/skillshare/releases)
 
 ## Why skillshare
 
