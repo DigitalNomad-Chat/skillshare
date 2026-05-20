@@ -84,11 +84,10 @@ func cmdNew(args []string) error {
 	var sourceDir string
 	if mode == modeProject {
 		projectCfg, loadErr := config.LoadProject(cwd)
-		if loadErr == nil {
-			sourceDir = projectCfg.EffectiveSkillsSource(cwd)
-		} else {
-			sourceDir = filepath.Join(cwd, ".skillshare", "skills")
+		if loadErr != nil {
+			return fmt.Errorf("failed to load project config: %w", loadErr)
 		}
+		sourceDir = projectCfg.EffectiveSkillsSource(cwd)
 	} else {
 		cfg, err := config.Load()
 		if err != nil {
