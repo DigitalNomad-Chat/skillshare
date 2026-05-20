@@ -9,6 +9,27 @@ All notable changes to skillshare are documented here. For the full commit histo
 
 ---
 
+## [0.19.15] - 2026-05-20
+
+### New Features
+
+- **Custom project source directories** — project mode can now read skills, agents, and extras from any directory in your repo. Useful for co-locating skill content with existing project documentation. Refs: #153, #162
+  ```yaml
+  # .skillshare/config.yaml
+  sources:
+    skills: ./docs/skills
+    agents: ./docs/agents
+    extras: ./docs/extras
+  targets:
+    - claude
+  ```
+  Each key is optional — omit to fall back to `.skillshare/<type>/`. Paths are resolved from the project root; absolute paths and `~` work too. `skillshare init -p` still seeds the default `.skillshare/` directories. Trash, backups, and operation logs always stay under `.skillshare/` regardless of `sources` settings
+
+### Behavior Changes
+
+- **Project commands fail closed on malformed `config.yaml`** — `uninstall`, `new`, `enable`/`disable`, and `check` now return `failed to load project config` instead of silently falling back to `.skillshare/skills`. With custom `sources`, the old fallback could have operated on the wrong directory. Fix any YAML errors (e.g. `targets: {}` → `targets: []`) and the command will succeed
+- **Sync rejects source/target path overlap** — `skillshare sync -p` errors when `sources.skills` or `sources.agents` aliases or nests with a target path. Without this check, `sync --force` could delete the configured source directory. Common safe layout: `sources.skills: ./docs/skills` with a `claude` target (no overlap)
+
 ## [0.19.14] - 2026-05-20
 
 ### Refactoring
