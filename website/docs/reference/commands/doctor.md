@@ -88,6 +88,29 @@ Each target shows sub-items for **skills** and **agents** (when agents are confi
 - Valid include/exclude glob patterns
 - Info-level per-target compatibility hint when applicable (example target priority: `cursor` → `antigravity` → `copilot` → `opencode`; no hint when these targets are absent)
 
+### Path Overlap
+
+Doctor flags two classes of duplicate-skill risk before they reach the runtime picker:
+
+**`shared_target_paths`** — fires when two or more enabled targets resolve to the same primary path. Common cause: enabling both `universal` and a tool that writes to `~/.agents/skills` (e.g. `warp`, `witsy`).
+
+```text
+! Shared path ~/.agents/skills ← universal, warp
+```
+
+Resolution: disable one of the overlapping targets, or set a distinct path with `skillshare target <name> --path <dir>`.
+
+**`cross_target_discovery`** — fires when an enabled target's runtime is documented to also scan a directory another enabled target writes to. For example, Codex Desktop reads `~/.agents/skills` in addition to `~/.codex/skills`, so enabling both `codex` and `universal` causes Codex to see universal's content.
+
+```text
+! codex will see content from: universal
+    ~/.agents/skills ← universal
+```
+
+Resolution: pick one target as the writer for the shared content, or accept the overlap if duplicate listings in the runtime picker are acceptable.
+
+Both checks are pure metadata — they read configured paths and the built-in `also_scans` table, no filesystem probing.
+
 ### Version
 
 - CLI version

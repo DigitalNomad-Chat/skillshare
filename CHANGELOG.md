@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.19.17] - 2026-05-22
+
+### New Features
+
+- **`doctor` warns on overlapping skill paths** — `skillshare doctor` now flags two classes of duplicate-skill problems before they reach the runtime picker. Refs: #135
+  ```
+  ! Shared path ~/.agents/skills ← universal, warp
+  ! codex will see content from: universal
+      ~/.agents/skills ← universal
+  ```
+  The first warning fires when two enabled targets resolve to the same primary path. The second fires when an enabled target's runtime also scans a directory another enabled target writes to (e.g. Codex Desktop reads `~/.agents/skills` in addition to `~/.codex/skills`). Both checks are pure metadata — no filesystem probing, no runtime calls. `skillshare sync` also prints a one-line hint when overlap is detected, pointing back to `doctor` for the full breakdown:
+  ```
+  ! Skill path overlap across 2 target(s) — run `skillshare doctor` for details
+  ```
+
+### Bug Fixes
+
+- **`cline` target path reverted to `~/.cline/skills`** — the cline target was briefly pointing at the shared `~/.agents/skills` root, which doesn't match the official cline documentation. Restored to the brand-specific `~/.cline/skills` (global) and `.cline/skills` (project). If you synced cline between v0.19.14 and v0.19.16, re-run `skillshare sync` to move skills to the correct location
+
 ## [0.19.16] - 2026-05-21
 
 ### New Features
