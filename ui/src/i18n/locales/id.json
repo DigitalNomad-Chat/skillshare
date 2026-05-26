@@ -1184,6 +1184,7 @@
   "update.check.behind": "{count} tertinggal",
   "update.check.behindFallback": "Tertinggal",
   "update.check.checking": "Memeriksa",
+  "update.check.checkedAt": "Diperiksa {time}",
   "update.check.error": "Kesalahan",
   "update.check.unchecked": "Belum diperiksa",
   "update.check.upToDate": "Sudah terbaru",

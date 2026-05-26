@@ -1184,6 +1184,7 @@
   "update.check.behind": "{count} عقب",
   "update.check.behindFallback": "عقب",
   "update.check.checking": "در حال بررسی",
+  "update.check.checkedAt": "بررسی شد {time}",
   "update.check.error": "خطا",
   "update.check.unchecked": "بررسی‌نشده",
   "update.check.upToDate": "به‌روز",

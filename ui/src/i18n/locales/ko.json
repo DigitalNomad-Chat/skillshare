@@ -1184,6 +1184,7 @@
   "update.check.behind": "{count}개 뒤처짐",
   "update.check.behindFallback": "뒤처짐",
   "update.check.checking": "확인 중",
+  "update.check.checkedAt": "마지막 확인 {time}",
   "update.check.error": "오류",
   "update.check.unchecked": "미확인",
   "update.check.upToDate": "최신 상태",

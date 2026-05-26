@@ -1184,6 +1184,7 @@
   "update.check.behind": "落後 {count} 個",
   "update.check.behindFallback": "已落後",
   "update.check.checking": "檢查中",
+  "update.check.checkedAt": "上次檢查 {time}",
   "update.check.error": "錯誤",
   "update.check.unchecked": "未檢查",
   "update.check.upToDate": "已是最新版本",

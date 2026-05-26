@@ -1184,6 +1184,7 @@
   "update.check.behind": "{count} コミット遅れ",
   "update.check.behindFallback": "遅れています",
   "update.check.checking": "確認中",
+  "update.check.checkedAt": "前回チェック {time}",
   "update.check.error": "エラー",
   "update.check.unchecked": "未確認",
   "update.check.upToDate": "最新",

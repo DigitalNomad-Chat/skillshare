@@ -1184,6 +1184,7 @@
   "update.check.behind": "{count} en retard",
   "update.check.behindFallback": "En retard",
   "update.check.checking": "Vérification",
+  "update.check.checkedAt": "Vérifié {time}",
   "update.check.error": "Erreur",
   "update.check.unchecked": "Non vérifié",
   "update.check.upToDate": "À jour",

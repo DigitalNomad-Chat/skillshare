@@ -1021,6 +1021,7 @@
   "update.check.behind": "{count} behind",
   "update.check.behindFallback": "Behind",
   "update.check.checking": "Checking",
+  "update.check.checkedAt": "Checked {time}",
   "update.check.error": "Error",
   "update.check.unchecked": "Unchecked",
   "update.check.updateAvailable": "Update available",

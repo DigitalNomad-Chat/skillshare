@@ -93,6 +93,32 @@ describe('UpdatePage', () => {
     expect(within(row as HTMLElement).queryByText('Checking')).not.toBeInTheDocument();
   });
 
+  it('restores cached check status and last check time on entry', async () => {
+    vi.mocked(api.listSkills).mockResolvedValue({
+      resources: [nestedSkill],
+    });
+    localStorage.setItem(
+      'skillshare.updateCheckCache.global',
+      JSON.stringify({
+        version: 1,
+        items: {
+          'agent-browser': {
+            status: 'update-available',
+            checkedAt: new Date(Date.now() - 60_000).toISOString(),
+          },
+        },
+      }),
+    );
+
+    renderUpdatePage();
+
+    const row = await screen.findByText('agent-browser').then((el) => el.closest('button'));
+    expect(row).not.toBeNull();
+    expect(within(row as HTMLElement).getByText('Update available')).toBeInTheDocument();
+    expect(within(row as HTMLElement).getByText(/checked 1m ago/i)).toBeInTheDocument();
+    expect(api.checkStream).not.toHaveBeenCalled();
+  });
+
   it('sends relative paths when updating nested GitHub-installed skills', async () => {
     vi.mocked(api.listSkills).mockResolvedValue({
       resources: [nestedSkill],

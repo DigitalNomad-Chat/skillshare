@@ -1184,6 +1184,7 @@
   "update.check.behind": "{count} detrás",
   "update.check.behindFallback": "Detrás",
   "update.check.checking": "Comprobando",
+  "update.check.checkedAt": "Comprobado {time}",
   "update.check.error": "Error",
   "update.check.unchecked": "Sin comprobar",
   "update.check.upToDate": "Actualizado",
