@@ -1228,6 +1228,7 @@ export interface DoctorCheck {
   status: 'pass' | 'warning' | 'error' | 'info';
   message: string;
   details?: string[];
+  suggestions?: string[];
 }
 
 export interface DoctorSummary {

@@ -414,6 +414,7 @@
   "doctor.filter.warning": "경고",
   "doctor.recheck": "다시 확인",
   "doctor.skillignore.ignoredSkills": "무시된 Skills",
+  "doctor.suggestions": "제안",
   "doctor.skillignore.patterns": "패턴",
   "doctor.subtitle": "skillshare 설정 진단",
   "doctor.summary.errors": "오류",

@@ -505,6 +505,7 @@
   "doctor.version.title": "Version",
   "doctor.version.updateAvailable": "Update available",
   "doctor.skillignore.ignoredSkills": "Ignored Skills",
+  "doctor.suggestions": "Suggestions",
   "doctor.skillignore.patterns": "Patterns",
   "doctor.subtitle": "Diagnose your skillshare setup",
   "doctor.title": "Health Check",
