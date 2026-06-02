@@ -55,10 +55,12 @@ function ToastItem({
   onRemove: (id: number) => void;
 }) {
   const Icon = icons[t.type];
+  // Errors/warnings often carry longer text — give them more time to read.
+  const duration = t.type === 'error' || t.type === 'warning' ? 8000 : TOAST_DURATION;
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [paused, setPaused] = useState(false);
   const [exiting, setExiting] = useState(false);
-  const remainRef = useRef(TOAST_DURATION);
+  const remainRef = useRef(duration);
   const startRef = useRef(Date.now());
 
   const startExit = useCallback(() => {
@@ -99,7 +101,7 @@ function ToastItem({
       onMouseLeave={() => { setPaused(false); startTimer(); }}
     >
       <Icon size={18} strokeWidth={2.5} className="shrink-0 mt-0.5" />
-      <span className="flex-1">{t.message}</span>
+      <span className="flex-1 whitespace-pre-line break-words leading-relaxed">{t.message}</span>
       <button
         onClick={() => startExit()}
         className="shrink-0 opacity-60 hover:opacity-100 transition-opacity"
@@ -111,7 +113,7 @@ function ToastItem({
         <div
           className={`h-full ${progressColors[t.type]}`}
           style={{
-            animation: paused ? 'none' : `toastProgress ${TOAST_DURATION}ms linear forwards`,
+            animation: paused ? 'none' : `toastProgress ${duration}ms linear forwards`,
           }}
         />
       </div>
@@ -135,7 +137,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ toast: addToast }}>
       {children}
       {/* Toast container */}
-      <div data-toast-container className="fixed bottom-6 right-6 z-[60] flex flex-col gap-3 max-w-sm">
+      <div data-toast-container className="fixed bottom-6 right-6 z-[60] flex flex-col gap-3 w-[min(32rem,calc(100vw-3rem))]">
         {toasts.map((t) => (
           <ToastItem key={t.id} toast={t} onRemove={removeToast} />
         ))}

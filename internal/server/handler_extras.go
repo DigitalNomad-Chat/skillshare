@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -64,6 +65,14 @@ func (s *Server) extrasConfig() []config.ExtraConfig {
 	return s.cfg.Extras
 }
 
+func resolveExtrasTargetPath(projectRoot, path string) string {
+	resolved := config.ExpandPath(path)
+	if projectRoot != "" && !filepath.IsAbs(resolved) {
+		return filepath.Join(projectRoot, filepath.FromSlash(resolved))
+	}
+	return resolved
+}
+
 // handleExtras — GET /api/extras
 func (s *Server) handleExtras(w http.ResponseWriter, r *http.Request) {
 	// Snapshot config under RLock, then release before I/O.
@@ -120,6 +129,7 @@ func (s *Server) handleExtras(w http.ResponseWriter, r *http.Request) {
 		entry.Targets = make([]extrasTargetInfo, 0, len(extra.Targets))
 		for _, t := range extra.Targets {
 			m := syncpkg.EffectiveMode(t.Mode)
+			targetPath := resolveExtrasTargetPath(projectRoot, t.Path)
 			ti := extrasTargetInfo{
 				Path:      t.Path,
 				Mode:      m,
@@ -146,7 +156,7 @@ func (s *Server) handleExtras(w http.ResponseWriter, r *http.Request) {
 
 			if !entry.SourceExists {
 				ti.Status = "no source"
-			} else if _, statErr := os.Stat(t.Path); os.IsNotExist(statErr) {
+			} else if _, statErr := os.Stat(targetPath); os.IsNotExist(statErr) {
 				ti.Status = "not synced"
 			} else {
 				// A transform extension renames output (e.g. .md → .toml), so
@@ -160,7 +170,7 @@ func (s *Server) handleExtras(w http.ResponseWriter, r *http.Request) {
 						log.Printf("warning: extension %q for extra %q could not be resolved (%v); sync status may be inaccurate", t.Extension, extra.Name, serr)
 					}
 				}
-				ti.Status = syncpkg.CheckSyncStatus(files, sourceDir, t.Path, m, t.Flatten, outputExt)
+				ti.Status = syncpkg.CheckSyncStatus(files, sourceDir, targetPath, m, t.Flatten, outputExt)
 			}
 
 			entry.Targets = append(entry.Targets, ti)
@@ -273,7 +283,8 @@ func (s *Server) handleExtrasDiff(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
-			items := buildExtrasDiffItems(files, sourceDir, t.Path, m, t.Flatten, outputExt)
+			targetPath := resolveExtrasTargetPath(projectRoot, t.Path)
+			items := buildExtrasDiffItems(files, sourceDir, targetPath, m, t.Flatten, outputExt)
 			synced := len(items) == 0
 
 			out = append(out, extrasDiffEntry{
@@ -321,7 +332,7 @@ func buildExtrasDiffItems(sourceFiles []string, sourceDir, targetDir, mode strin
 		case "symlink", "merge":
 			if info.Mode()&os.ModeSymlink != 0 {
 				link, readErr := os.Readlink(targetFile)
-				if readErr != nil || link != sourceFile {
+				if readErr != nil || filepath.Clean(resolveExtrasTargetPath(filepath.Dir(targetFile), link)) != filepath.Clean(sourceFile) {
 					items = append(items, extrasDiffItem{
 						Action: "update",
 						File:   rel,
@@ -342,11 +353,29 @@ func buildExtrasDiffItems(sourceFiles []string, sourceDir, targetDir, mode strin
 					File:   rel,
 					Reason: "not a regular file",
 				})
+			} else if outputExt == "" && !filesEqual(sourceFile, targetFile) {
+				items = append(items, extrasDiffItem{
+					Action: "update",
+					File:   rel,
+					Reason: "content differs",
+				})
 			}
 		}
 	}
 
 	return items
+}
+
+func filesEqual(a, b string) bool {
+	left, err := os.ReadFile(a)
+	if err != nil {
+		return false
+	}
+	right, err := os.ReadFile(b)
+	if err != nil {
+		return false
+	}
+	return bytes.Equal(left, right)
 }
 
 // handleExtrasCreate — POST /api/extras
@@ -547,7 +576,8 @@ func (s *Server) handleExtrasSync(w http.ResponseWriter, r *http.Request) {
 				tr.Mode = m
 			}
 
-			res, err := syncpkg.SyncExtra(sourceDir, t.Path, m, body.DryRun, body.Force, t.Flatten, projectRoot, spec)
+			targetPath := resolveExtrasTargetPath(projectRoot, t.Path)
+			res, err := syncpkg.SyncExtra(sourceDir, targetPath, m, body.DryRun, body.Force, t.Flatten, projectRoot, spec)
 			if err != nil {
 				tr.Error = err.Error()
 			} else {
@@ -775,14 +805,19 @@ func (s *Server) handleExtrasAddTarget(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusNotFound, "extra not found: "+name)
 		return
 	}
+	newPath := filepath.Clean(resolveExtrasTargetPath(s.projectRoot, body.Path))
 	for _, t := range extras[idx].Targets {
-		if t.Path == body.Path {
+		if filepath.Clean(resolveExtrasTargetPath(s.projectRoot, t.Path)) == newPath {
 			writeError(w, http.StatusConflict, "target already exists: "+body.Path)
 			return
 		}
 	}
 
-	et := config.ExtraTargetConfig{Path: body.Path, Flatten: body.Flatten}
+	storedPath := body.Path
+	if !s.IsProjectMode() {
+		storedPath = newPath
+	}
+	et := config.ExtraTargetConfig{Path: storedPath, Flatten: body.Flatten}
 	if body.Mode != "" {
 		et.Mode = body.Mode
 	}

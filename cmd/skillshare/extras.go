@@ -11,6 +11,18 @@ func cmdExtras(args []string) error {
 	sub := args[0]
 	rest := args[1:]
 
+	// Shorthand operations on `extras <name>` must win over subcommand names so
+	// valid extras named "list", "source", or "remove" remain operable.
+	if hasFlag(args, "--add-target") {
+		return cmdExtrasAddTarget(args)
+	}
+	if hasFlag(args, "--remove-target") {
+		return cmdExtrasRemoveTarget(args)
+	}
+	if sub != "init" && (hasFlag(args, "--mode") || hasFlag(args, "--flatten") || hasFlag(args, "--no-flatten")) {
+		return cmdExtrasMode(args)
+	}
+
 	switch sub {
 	case "init":
 		return cmdExtrasInit(rest)
@@ -26,16 +38,6 @@ func cmdExtras(args []string) error {
 		printExtrasHelp()
 		return nil
 	default:
-		// Shorthand: operate on an existing extra via flags on `extras <name>`.
-		if hasFlag(args, "--add-target") {
-			return cmdExtrasAddTarget(args)
-		}
-		if hasFlag(args, "--remove-target") {
-			return cmdExtrasRemoveTarget(args)
-		}
-		if hasFlag(args, "--mode") || hasFlag(args, "--flatten") || hasFlag(args, "--no-flatten") {
-			return cmdExtrasMode(args)
-		}
 		return fmt.Errorf("unknown extras subcommand: %s (run 'skillshare extras --help')", sub)
 	}
 }

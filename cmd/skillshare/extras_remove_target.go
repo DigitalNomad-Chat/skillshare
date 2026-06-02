@@ -67,6 +67,8 @@ func cmdExtrasRemoveTarget(args []string) error {
 	var extras []config.ExtraConfig
 	var configPath string
 	var saveFn func() error
+	var sourceDirForExtra func(config.ExtraConfig) string
+	var extensionsDir string
 	if mode == modeProject {
 		projCfg, loadErr := config.LoadProject(cwd)
 		if loadErr != nil {
@@ -75,6 +77,11 @@ func cmdExtrasRemoveTarget(args []string) error {
 		extras = projCfg.Extras
 		configPath = config.ProjectConfigPath(cwd)
 		saveFn = func() error { return projCfg.Save(cwd) }
+		projectExtrasSource := projCfg.EffectiveExtrasSource(cwd)
+		sourceDirForExtra = func(extra config.ExtraConfig) string {
+			return config.ExtrasSourceDirProject(projectExtrasSource, extra.Name)
+		}
+		extensionsDir = projectExtensionsDir(cwd)
 	} else {
 		cfg, loadErr := config.Load()
 		if loadErr != nil {
@@ -83,6 +90,12 @@ func cmdExtrasRemoveTarget(args []string) error {
 		extras = cfg.Extras
 		configPath = config.ConfigPath()
 		saveFn = cfg.Save
+		extrasSource := cfg.EffectiveExtrasSource()
+		skillsSource := cfg.EffectiveSkillsSource()
+		sourceDirForExtra = func(extra config.ExtraConfig) string {
+			return config.ResolveExtrasSourceDir(extra, extrasSource, skillsSource)
+		}
+		extensionsDir = globalExtensionsDir()
 	}
 
 	idx := -1
@@ -98,10 +111,14 @@ func cmdExtrasRemoveTarget(args []string) error {
 
 	tIdx := -1
 	var targetMode string
+	var targetExtension string
+	var target config.ExtraTargetConfig
 	for j, t := range extras[idx].Targets {
-		if t.Path == rmPath {
+		if extraTargetPathMatches(mode, cwd, t.Path, rmPath) {
 			tIdx = j
 			targetMode = t.Mode
+			targetExtension = t.Extension
+			target = t
 			break
 		}
 	}
@@ -111,13 +128,36 @@ func cmdExtrasRemoveTarget(args []string) error {
 	if len(extras[idx].Targets) == 1 {
 		return fmt.Errorf("%q is the last target of %q — use 'skillshare extras remove %s' to remove the whole extra", rmPath, name, name)
 	}
+	if prune && targetExtension != "" {
+		effectiveMode, modeErr := validateExtensionMode(targetMode)
+		if modeErr != nil {
+			return fmt.Errorf("target %q: %w", rmPath, modeErr)
+		}
+		targetMode = effectiveMode
+	}
 
 	// Resolve the on-disk target path for optional pruning before mutating config.
-	var resolved string
-	if mode == modeProject {
-		resolved = resolveProjectPath(cwd, rmPath)
-	} else {
-		resolved = config.ExpandPath(rmPath)
+	resolved := canonicalExtraTargetPath(mode, cwd, target.Path)
+
+	var pruned int
+	if prune {
+		var managedFiles map[string]bool
+		if targetMode == "copy" {
+			var managedErr error
+			managedFiles, managedErr = managedExtraTargetFiles(target, sourceDirForExtra(extras[idx]), extensionsDir)
+			if managedErr != nil {
+				return managedErr
+			}
+		}
+
+		var errs []string
+		pruned, errs = sync.PruneExtraTargetFiles(resolved, targetMode, managedFiles)
+		if len(errs) > 0 {
+			for _, msg := range errs {
+				ui.Warning("%s", msg)
+			}
+			return fmt.Errorf("failed to prune target %s", shortenPath(rmPath))
+		}
 	}
 
 	extras[idx].Targets = append(extras[idx].Targets[:tIdx], extras[idx].Targets[tIdx+1:]...)
@@ -129,10 +169,6 @@ func cmdExtrasRemoveTarget(args []string) error {
 	ui.Success("Removed target %s from %s", shortenPath(rmPath), name)
 
 	if prune {
-		pruned, errs := sync.PruneExtraTarget(resolved, targetMode)
-		for _, msg := range errs {
-			ui.Warning("%s", msg)
-		}
 		ui.Info("Pruned %d file(s) from %s", pruned, shortenPath(rmPath))
 	} else {
 		ui.Info("Synced files left in place. Run 'skillshare sync extras%s' to clean up orphaned links, or re-run with --prune.", projectSuffix(mode))
@@ -143,6 +179,35 @@ func cmdExtrasRemoveTarget(args []string) error {
 	oplog.WriteWithLimit(configPath, oplog.OpsFile, e, logMaxEntries()) //nolint:errcheck
 
 	return nil
+}
+
+func managedExtraTargetFiles(target config.ExtraTargetConfig, sourceDir, extensionsDir string) (map[string]bool, error) {
+	files, err := sync.DiscoverExtraFiles(sourceDir)
+	if err != nil {
+		return nil, err
+	}
+
+	outputExt := ""
+	if target.Extension != "" {
+		spec, err := resolveExtension(target.Extension, extensionsDir)
+		if err != nil {
+			return nil, err
+		}
+		if spec != nil {
+			outputExt = spec.OutputExt
+		}
+	}
+
+	seen := make(map[string]bool)
+	managed := make(map[string]bool)
+	for _, rel := range files {
+		tgtRel, ok := sync.FlattenRel(rel, target.Flatten, seen)
+		if !ok {
+			continue
+		}
+		managed[sync.ApplyOutputExt(tgtRel, outputExt)] = true
+	}
+	return managed, nil
 }
 
 func printExtrasRemoveTargetHelp() {

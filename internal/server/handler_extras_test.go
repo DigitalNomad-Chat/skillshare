@@ -683,6 +683,47 @@ func TestHandleExtrasSync_AppliesExtension(t *testing.T) {
 	}
 }
 
+func TestHandleExtrasSync_ProjectRelativeTargetResolvesProjectRoot(t *testing.T) {
+	extras := []config.ExtraConfig{{
+		Name: "rules",
+		Targets: []config.ExtraTargetConfig{
+			{Path: ".cursor/rules", Mode: "copy"},
+		},
+	}}
+	s, projectRoot := newTestProjectServerWithExtras(t, extras)
+
+	sourceDir := filepath.Join(projectRoot, ".skillshare", "extras", "rules")
+	if err := os.MkdirAll(sourceDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(sourceDir, "rule.md"), []byte("rule"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	otherCWD := t.TempDir()
+	oldCWD, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(otherCWD); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chdir(oldCWD) })
+
+	req := httptest.NewRequest(http.MethodPost, "/api/extras/sync", strings.NewReader(`{"name":"rules","force":true}`))
+	rr := httptest.NewRecorder()
+	s.handler.ServeHTTP(rr, req)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rr.Code, rr.Body.String())
+	}
+
+	if _, err := os.Stat(filepath.Join(projectRoot, ".cursor", "rules", "rule.md")); err != nil {
+		t.Fatalf("expected project target file, stat err = %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(otherCWD, ".cursor", "rules", "rule.md")); !os.IsNotExist(err) {
+		t.Fatalf("server cwd target should not be written, stat err = %v", err)
+	}
+}
+
 // After a .md→.toml transform sync, /api/extras/diff must compare against the
 // transformed target filenames. Regression: the diff path ignored output_ext
 // and looked for the source .md name, reporting false drift.
@@ -726,6 +767,25 @@ func TestHandleExtrasDiff_TransformOutputExt(t *testing.T) {
 	}
 	if !resp.Extras[0].Synced {
 		t.Errorf("expected synced=true after .md→.toml sync, got drift: %+v", resp.Extras[0].Items)
+	}
+}
+
+func TestBuildExtrasDiffItems_CopyContentDrift(t *testing.T) {
+	sourceDir := t.TempDir()
+	targetDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(sourceDir, "rule.md"), []byte("source"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(targetDir, "rule.md"), []byte("changed"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	items := buildExtrasDiffItems([]string{"rule.md"}, sourceDir, targetDir, "copy", false, "")
+	if len(items) != 1 {
+		t.Fatalf("expected one diff item, got %+v", items)
+	}
+	if items[0].Action != "update" || items[0].Reason != "content differs" {
+		t.Fatalf("expected content update item, got %+v", items[0])
 	}
 }
 
@@ -773,6 +833,25 @@ func TestHandleExtrasAddTarget_Duplicate(t *testing.T) {
 	s.handler.ServeHTTP(rr, req)
 	if rr.Code != http.StatusConflict {
 		t.Fatalf("expected 409, got %d: %s", rr.Code, rr.Body.String())
+	}
+}
+
+func TestHandleExtrasAddTarget_TildeDuplicate(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	tgt1 := filepath.Join(home, ".codex", "agents")
+	extras := []config.ExtraConfig{{
+		Name:    "agents",
+		Targets: []config.ExtraTargetConfig{{Path: tgt1, Mode: "merge"}},
+	}}
+	s, _ := newTestServerWithExtras(t, extras, "")
+
+	body := `{"path":"~/.codex/agents","mode":"merge"}`
+	req := httptest.NewRequest(http.MethodPost, "/api/extras/agents/targets", strings.NewReader(body))
+	rr := httptest.NewRecorder()
+	s.handler.ServeHTTP(rr, req)
+	if rr.Code != http.StatusConflict {
+		t.Fatalf("expected 409 for equivalent tilde path, got %d: %s", rr.Code, rr.Body.String())
 	}
 }
 

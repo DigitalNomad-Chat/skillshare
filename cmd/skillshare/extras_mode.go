@@ -130,9 +130,10 @@ func cmdExtrasMode(args []string) error {
 	for _, extra := range extras {
 		if extra.Name == name {
 			for _, t := range extra.Targets {
-				if t.Path == targetPath {
+				if extraTargetPathMatches(mode, cwd, t.Path, targetPath) {
 					currentFlatten = t.Flatten
 					currentMode = t.Mode
+					targetPath = t.Path
 					break
 				}
 			}

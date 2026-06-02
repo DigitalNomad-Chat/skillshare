@@ -33,6 +33,9 @@ export function Select({ label, value, onChange, options, className = '', size =
 
   const selected = options.find((o) => o.value === value);
   const selectedLabel = selected?.label ?? value;
+  // Options with descriptions need room to read; widen the popup to ~15rem
+  // (matching the dropdownWidth estimate below) so descriptions wrap nicely.
+  const hasDescriptions = options.some((o) => o.description);
 
   // Close on outside click
   useEffect(() => {
@@ -149,7 +152,7 @@ export function Select({ label, value, onChange, options, className = '', size =
           ref={listRef}
           role="listbox"
           className={`
-            absolute z-50 min-w-full bg-surface border-2 border-muted overflow-auto py-1 animate-dropdown-in
+            absolute z-50 bg-surface border-2 border-muted overflow-auto py-1 animate-dropdown-in
             ${dropUp ? 'bottom-full mb-1' : 'top-full mt-1'}
             ${dropRight ? 'right-0' : 'left-0'}
             ${size === 'sm' ? 'text-xs' : 'text-sm'}
@@ -158,6 +161,11 @@ export function Select({ label, value, onChange, options, className = '', size =
             borderRadius: radius.md,
             boxShadow: shadows.lg,
             maxHeight: '16rem',
+            // At least as wide as the trigger; wider for description options so
+            // they wrap nicely. Bounded so long descriptions never stretch the
+            // dropdown across the page.
+            minWidth: hasDescriptions ? 'max(100%, 15rem)' : '100%',
+            maxWidth: 'min(22rem, calc(100vw - 1rem))',
           }}
         >
           {options.map((opt, i) => {
@@ -185,7 +193,7 @@ export function Select({ label, value, onChange, options, className = '', size =
                     {opt.label}
                   </span>
                   {opt.description && (
-                    <span className="block text-xs text-pencil-light/60 mt-0.5 truncate">
+                    <span className="block text-xs text-pencil-light/60 mt-0.5">
                       {opt.description}
                     </span>
                   )}

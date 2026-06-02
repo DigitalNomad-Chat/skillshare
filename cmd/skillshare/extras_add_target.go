@@ -106,12 +106,13 @@ func cmdExtrasAddTarget(args []string) error {
 		return fmt.Errorf("extra %q not found", name)
 	}
 	for _, t := range extras[idx].Targets {
-		if t.Path == addPath {
+		if extraTargetPathMatches(mode, cwd, t.Path, addPath) {
 			return fmt.Errorf("target %q already exists on extra %q — use --mode/--flatten to change its settings", addPath, name)
 		}
 	}
 
-	et := config.ExtraTargetConfig{Path: addPath, Flatten: flatten}
+	storedPath := storedExtraTargetPath(mode, cwd, addPath)
+	et := config.ExtraTargetConfig{Path: storedPath, Flatten: flatten}
 	if syncMode != "" {
 		et.Mode = syncMode
 	}
