@@ -9,6 +9,16 @@ All notable changes to skillshare are documented here. For the full commit histo
 
 ---
 
+## [0.20.7] - 2026-06-03
+
+### Bug Fixes
+
+- Fixed single-skill uninstall for disabled skills in the dashboard — a skill hidden by `.skillignore` still appeared on the Resources page, but uninstalling it from the item menu or detail page could return "skill not found". Single-resource uninstall now resolves disabled skills the same way the list and batch uninstall flows do.
+
+### Performance
+
+- **Trash page virtualization** — the dashboard Trash page now renders long trash lists incrementally, so large skill or agent trash folders stay responsive instead of rendering every trashed item at once.
+
 ## [0.20.6] - 2026-06-03
 
 ### New Features
