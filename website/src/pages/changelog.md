@@ -9,6 +9,16 @@ All notable changes to skillshare are documented here. For the full commit histo
 
 ---
 
+## [0.20.9] - 2026-06-05
+
+### New Features
+
+- **Batch enable/disable in the web dashboard** — the Resources page now has a selection mode. Click **Select**, tick multiple skills or agents across the grid, folder, or table view (folders offer a select-all checkbox), then enable or disable them all at once from the bottom action bar. Enabling applies immediately; disabling asks for confirmation first. Works for both skills (`.skillignore`) and agents (`.agentignore`). Refs: #203.
+
+### Bug Fixes
+
+- Fixed `enabled: false` being ignored for tier and cross-skill audit rules — disabling one of these rules in `audit-rules.yaml` marked it disabled in the rule listing, but the scan still fired it at full severity. Both the per-skill and single-file scan paths now honor the disabled rule. Refs: #204.
+
 ## [0.20.8] - 2026-06-05
 
 ### Bug Fixes
