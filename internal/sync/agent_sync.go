@@ -71,6 +71,18 @@ func SyncAgents(agents []resource.DiscoveredResource, sourceDir, targetDir, mode
 	}
 }
 
+// linkResolvesToSource reports whether a resolved symlink target (absLink) and a
+// source path (absSource) reference the same file. The fast path is a direct
+// string compare; the slow path canonicalizes both sides through EvalSymlinks so
+// symlinked ancestors (e.g. macOS /var → /private/var) do not make a stable
+// relative link look like it points elsewhere. Mirrors isSymlinkToSource in sync.go.
+func linkResolvesToSource(absLink, absSource string) bool {
+	if utils.PathsEqual(absLink, absSource) {
+		return true
+	}
+	return utils.PathsEqual(utils.ResolveSymlink(absLink), utils.ResolveSymlink(absSource))
+}
+
 // syncAgentsMerge creates per-file symlinks in targetDir for each discovered agent.
 // Existing non-symlink files are preserved (skipped) unless force is true.
 func syncAgentsMerge(agents []resource.DiscoveredResource, sourceDir, targetDir string, dryRun, force bool, projectRoot string) (*AgentSyncResult, error) {
@@ -95,7 +107,7 @@ func syncAgentsMerge(agents []resource.DiscoveredResource, sourceDir, targetDir 
 				}
 				absSource, _ := filepath.Abs(agent.AbsPath)
 
-				if utils.PathsEqual(absLink, absSource) {
+				if linkResolvesToSource(absLink, absSource) {
 					dest, _ := os.Readlink(targetPath)
 					if !linkNeedsReformat(dest, relative) {
 						result.Linked = append(result.Linked, agent.FlatName)
@@ -165,7 +177,7 @@ func syncAgentsSymlink(sourceDir, targetDir string, dryRun, force bool, projectR
 			}
 			absSource, _ := filepath.Abs(sourceDir)
 
-			if utils.PathsEqual(absLink, absSource) {
+			if linkResolvesToSource(absLink, absSource) {
 				dest, _ := os.Readlink(targetDir)
 				if !linkNeedsReformat(dest, relative) {
 					result.Linked = append(result.Linked, "(directory)")
@@ -374,7 +386,7 @@ func FindLocalAgents(targetDir, sourcePath string) ([]LocalAgentInfo, error) {
 			return nil, err
 		}
 		absSource, _ := filepath.Abs(sourcePath)
-		if utils.PathsEqual(absLink, absSource) {
+		if linkResolvesToSource(absLink, absSource) {
 			return agents, nil
 		}
 		resolved, statErr := os.Stat(targetDir)

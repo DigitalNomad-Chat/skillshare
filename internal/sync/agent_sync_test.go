@@ -687,6 +687,63 @@ func TestSyncAgents_MergeMode_ReformatsProjectAgentSymlink(t *testing.T) {
 	}
 }
 
+// TestSyncAgents_MergeMode_StableWhenSourceResolvesThroughSymlink reproduces the
+// macOS /var → /private/var case on any platform: the project paths are expressed
+// through a symlinked ancestor, while discovery records the agent's real
+// (EvalSymlinks'd) AbsPath. A stable relative link must not be re-counted as
+// "updated" on the second sync. Regression test for the agent-sync idempotency
+// failure on macOS CI.
+func TestSyncAgents_MergeMode_StableWhenSourceResolvesThroughSymlink(t *testing.T) {
+	base := t.TempDir()
+	real := filepath.Join(base, "real")
+	if err := os.MkdirAll(real, 0755); err != nil {
+		t.Fatal(err)
+	}
+	alias := filepath.Join(base, "alias")
+	if err := os.Symlink(real, alias); err != nil {
+		t.Fatal(err)
+	}
+
+	projectRoot := alias
+	sourceDir := filepath.Join(alias, ".skillshare", "agents")
+	targetDir := filepath.Join(alias, ".claude", "agents")
+	if err := os.MkdirAll(sourceDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	srcFile := filepath.Join(sourceDir, "reviewer.md")
+	if err := os.WriteFile(srcFile, []byte("# Reviewer"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	// AbsPath mirrors real discovery, which resolves symlinked ancestors.
+	realSrc, err := filepath.EvalSymlinks(srcFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	agents := []resource.DiscoveredResource{
+		{FlatName: "reviewer.md", AbsPath: realSrc},
+	}
+
+	first, err := SyncAgents(agents, sourceDir, targetDir, "merge", false, false, projectRoot)
+	if err != nil {
+		t.Fatalf("first sync: %v", err)
+	}
+	if len(first.Updated) != 0 {
+		t.Fatalf("first sync should not update, got %#v", first)
+	}
+
+	second, err := SyncAgents(agents, sourceDir, targetDir, "merge", false, false, projectRoot)
+	if err != nil {
+		t.Fatalf("second sync: %v", err)
+	}
+	if len(second.Updated) != 0 {
+		t.Fatalf("second sync should be stable (0 updated), got %#v", second)
+	}
+	if len(second.Linked) != 1 {
+		t.Fatalf("second sync should re-link existing agent, got %#v", second)
+	}
+}
+
 func TestPullAgents_DryRun(t *testing.T) {
 	targetDir := t.TempDir()
 	os.WriteFile(filepath.Join(targetDir, "agent.md"), []byte("# Agent"), 0644)
