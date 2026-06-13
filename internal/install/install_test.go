@@ -492,6 +492,12 @@ func TestExtractGitFatal(t *testing.T) {
 			want:   "cannot pull with rebase",
 		},
 		{
+			name: "generic push error preserves earlier diagnostics",
+			stderr: "pre-push hook rejected branch\n" +
+				"error: failed to push some refs to 'https://github.com/org/repo.git'",
+			want: "pre-push hook rejected branch; error: failed to push some refs to 'https://github.com/org/repo.git'",
+		},
+		{
 			name:   "no fatal or hint prefix",
 			stderr: "some other git output",
 			want:   "some other git output",

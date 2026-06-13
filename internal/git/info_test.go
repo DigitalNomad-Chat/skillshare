@@ -86,6 +86,48 @@ func TestPushRemoteWithEnv_TokenNotInError(t *testing.T) {
 	}
 }
 
+func TestPushRemoteWithEnv_PreservesStdoutDiagnostics(t *testing.T) {
+	const token = "ghp_stdout_token_12345_redact"
+	const stdoutDiagnostic = "pre-push hook rejected branch https://x-access-token:" + token + "@github.com/org/repo.git/"
+
+	fakeBin := t.TempDir()
+	fakeGit := filepath.Join(fakeBin, "git")
+
+	script := "#!/bin/sh\n" +
+		"echo \"" + stdoutDiagnostic + "\"\n" +
+		"echo \"error: failed to push some refs to 'https://github.com/org/repo.git'\" >&2\n" +
+		"exit 1\n"
+
+	if err := os.WriteFile(fakeGit, []byte(script), 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Setenv("PATH", fakeBin+string(os.PathListSeparator)+os.Getenv("PATH"))
+	t.Setenv("GITHUB_TOKEN", token)
+
+	extraEnv := []string{
+		"GIT_CONFIG_COUNT=1",
+		"GIT_CONFIG_KEY_0=url.https://x-access-token:" + token + "@github.com/.insteadOf",
+		"GIT_CONFIG_VALUE_0=https://github.com/",
+	}
+
+	err := PushRemoteWithEnv(t.TempDir(), extraEnv)
+	if err == nil {
+		t.Fatal("expected git push to fail")
+	}
+
+	msg := err.Error()
+	if strings.Contains(msg, token) {
+		t.Fatalf("token leaked in error: %v", err)
+	}
+	if !strings.Contains(msg, "pre-push hook rejected branch") {
+		t.Fatalf("expected stdout diagnostic in error, got: %v", err)
+	}
+	if !strings.Contains(msg, "failed to push some refs") {
+		t.Fatalf("expected stderr diagnostic in error, got: %v", err)
+	}
+}
+
 func TestIsRepo(t *testing.T) {
 	repo := initTestRepo(t)
 	if !IsRepo(repo) {
