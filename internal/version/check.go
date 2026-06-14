@@ -148,7 +148,8 @@ func compareVersions(v1, v2 string) (bool, error) {
 }
 
 func parseVersionParts(ver string) ([]int, error) {
-	rawParts := strings.Split(ver, ".")
+	normalized := strings.TrimPrefix(ver, "v")
+	rawParts := strings.Split(normalized, ".")
 	parts := make([]int, len(rawParts))
 	for i, part := range rawParts {
 		n, err := strconv.Atoi(part)

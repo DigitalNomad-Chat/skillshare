@@ -18,6 +18,8 @@ func TestCompareVersions(t *testing.T) {
 		{name: "equal", v1: "1.0.0", v2: "1.0.0", want: false},
 		{name: "newer", v1: "1.0.1", v2: "1.0.0", want: false},
 		{name: "missing patch treated as zero", v1: "1.0", v2: "1.0.1", want: true},
+		{name: "current version v prefix", v1: "v1.0.0", v2: "1.0.1", want: true},
+		{name: "latest version v prefix", v1: "1.0.0", v2: "v1.0.1", want: true},
 		{name: "dev build skipped", v1: "dev", v2: "9.9.9", want: false},
 		{name: "empty build skipped", v1: "", v2: "9.9.9", want: false},
 	}
@@ -76,5 +78,27 @@ func TestCheckRejectsMalformedCurrentVersionBeforeCacheHandling(t *testing.T) {
 
 	if got := GetCachedVersion(); got != "9.9.9" {
 		t.Fatalf("cached version = %q, want %q", got, "9.9.9")
+	}
+}
+
+func TestCheckAcceptsCurrentVersionWithVPrefix(t *testing.T) {
+	t.Setenv("XDG_CACHE_HOME", t.TempDir())
+
+	if err := saveCache(&Cache{
+		LastChecked:   time.Now().Add(checkInterval),
+		LatestVersion: "1.0.1",
+	}); err != nil {
+		t.Fatalf("save cache: %v", err)
+	}
+
+	result := Check("v1.0.0", InstallDirect)
+	if result == nil {
+		t.Fatal("Check returned nil, want update result")
+	}
+	if !result.UpdateAvailable {
+		t.Fatalf("UpdateAvailable = false, want true")
+	}
+	if result.CurrentVersion != "v1.0.0" || result.LatestVersion != "1.0.1" {
+		t.Fatalf("result = %#v, want current v1.0.0 latest 1.0.1", result)
 	}
 }
