@@ -603,7 +603,7 @@ export default function UpdatePage() {
       <div className="space-y-3 animate-fade-in">
         <PageHeader
           icon={<ArrowUpCircle size={24} strokeWidth={2.5} />}
-          title={t('update.header.title')}
+          title={t('update.header.title')} help={t("pageHelp.update")}
           subtitle={t('update.header.subtitle')}
           actions={
             <>

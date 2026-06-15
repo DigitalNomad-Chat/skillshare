@@ -181,7 +181,7 @@ export default function BackupPage() {
     <div className="space-y-5 animate-fade-in">
       <PageHeader
         icon={<Archive size={24} strokeWidth={2.5} />}
-        title={t('backup.title')}
+        title={t('backup.title')} help={t("pageHelp.backup")}
         subtitle={t('backup.subtitle')}
         actions={
           <>

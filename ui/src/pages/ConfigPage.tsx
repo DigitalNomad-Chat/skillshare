@@ -320,7 +320,7 @@ export default function ConfigPage() {
       {/* Header */}
       <PageHeader
         icon={<Settings size={24} strokeWidth={2.5} />}
-        title={t('config.title')}
+        title={t('config.title')} help={t("pageHelp.config")}
         subtitle={isProjectMode ? t('config.subtitle.project') : t('config.subtitle.global')}
         actions={
           tab === 'extensions' ? undefined : (

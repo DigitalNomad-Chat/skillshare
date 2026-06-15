@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, CircleHelp } from 'lucide-react';
 import { radius, shadows } from '../design';
 import { useT } from '../i18n';
+import Tooltip from './Tooltip';
 
 interface PageHeaderProps {
   title: string;
@@ -11,9 +12,11 @@ interface PageHeaderProps {
   className?: string;
   /** Show a styled back button linking to this path */
   backTo?: string;
+  /** Help tooltip shown next to the title */
+  help?: React.ReactNode;
 }
 
-export default function PageHeader({ title, subtitle, icon, actions, className = '', backTo }: PageHeaderProps) {
+export default function PageHeader({ title, subtitle, icon, actions, className = '', backTo, help }: PageHeaderProps) {
   const t = useT();
   const heading = (
     <div className="flex items-center gap-3">
@@ -31,6 +34,13 @@ export default function PageHeader({ title, subtitle, icon, actions, className =
         <h2 className="text-2xl md:text-3xl font-bold text-pencil flex items-center gap-2">
           {icon}
           {title}
+          {help && (
+            <Tooltip content={help} side="top">
+              <span className="inline-flex items-center justify-center text-pencil-light hover:text-pencil transition-colors cursor-help ml-1" aria-label={t('common.help')}>
+                <CircleHelp size={20} strokeWidth={2} />
+              </span>
+            </Tooltip>
+          )}
         </h2>
         {subtitle && <p className="text-pencil-light mt-1">{subtitle}</p>}
       </div>

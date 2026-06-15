@@ -1047,7 +1047,7 @@ export default function SkillsPage() {
       {/* Header */}
       <PageHeader
         icon={<Layers size={24} strokeWidth={2.5} />}
-        title={t('resources.title')}
+        title={t('resources.title')} help={t("pageHelp.resources")}
         subtitle=""
         className="mb-4!"
         actions={activeTab === 'skills' ? (

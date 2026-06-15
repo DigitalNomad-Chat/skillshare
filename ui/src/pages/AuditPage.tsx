@@ -165,7 +165,7 @@ export default function AuditPage() {
       <div data-tour="audit-summary">
       <PageHeader
         icon={<ShieldCheck size={24} strokeWidth={2.5} />}
-        title={t('audit.header.title')}
+        title={t('audit.header.title')} help={t("pageHelp.audit")}
         subtitle={t('audit.header.subtitle')}
         actions={
           <>

@@ -275,7 +275,7 @@ export default function GitSyncPage() {
       <div className="space-y-5 animate-fade-in">
         <PageHeader
           icon={<GitBranch size={24} strokeWidth={2.5} />}
-          title={t('gitSync.title')}
+          title={t('gitSync.title')} help={t("pageHelp.gitSync")}
           subtitle={t('gitSync.subtitle')}
         />
         <PageSkeleton />

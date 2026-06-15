@@ -834,7 +834,7 @@ export default function ExtrasPage() {
       {/* Header */}
       <PageHeader
         icon={<FolderPlus size={24} strokeWidth={2.5} />}
-        title={tr('extras.title')}
+        title={tr('extras.title')} help={tr('pageHelp.extras')}
         subtitle={isProjectMode
           ? tr('extras.subtitle.project')
           : tr('extras.subtitle.global')}

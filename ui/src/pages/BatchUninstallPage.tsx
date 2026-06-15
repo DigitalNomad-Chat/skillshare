@@ -307,7 +307,7 @@ export default function BatchUninstallPage() {
   if (allSkills.length === 0) {
     return (
       <div className="space-y-5 animate-fade-in">
-        <PageHeader title={t('batchUninstall.title')} icon={<Trash2 size={24} strokeWidth={2.5} />} />
+        <PageHeader title={t('batchUninstall.title')} help={t("pageHelp.uninstall")} icon={<Trash2 size={24} strokeWidth={2.5} />} />
         <EmptyState
           icon={Trash2}
           title={t('batchUninstall.empty.title')}

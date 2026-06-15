@@ -165,7 +165,7 @@ export default function SyncPage() {
 
   return (
     <div className="space-y-5 animate-fade-in">
-      <PageHeader icon={<RefreshCw size={24} strokeWidth={2.5} />} title={t('sync.title')} subtitle={t('sync.subtitle')} />
+      <PageHeader icon={<RefreshCw size={24} strokeWidth={2.5} />} title={t('sync.title')} help={t("pageHelp.sync")} subtitle={t('sync.subtitle')} />
 
       {/* Visual Pipeline */}
       <div className="hidden md:flex items-center justify-center gap-4">

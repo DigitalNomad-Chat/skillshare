@@ -393,6 +393,10 @@ func (s *Server) registerRoutes() {
 	s.mux.HandleFunc("PATCH /api/targets/{name}", s.handleUpdateTarget)
 	s.mux.HandleFunc("DELETE /api/targets/{name}", s.handleRemoveTarget)
 
+	// OpenClaw sub-agent discovery
+	s.mux.HandleFunc("GET /api/targets/openclaw-agents", s.handleOpenClawAgents)
+	s.mux.HandleFunc("POST /api/targets/openclaw-agents/persist", s.handlePersistOpenClawAgent)
+
 	// Sync matrix
 	s.mux.HandleFunc("GET /api/sync-matrix", s.handleSyncMatrix)
 	s.mux.HandleFunc("POST /api/sync-matrix/preview", s.handleSyncMatrixPreview)

@@ -74,6 +74,18 @@ func (r ResourceTargetConfig) IsEmpty() bool {
 	return r.Path == "" && r.Mode == "" && r.TargetNaming == "" && len(r.Include) == 0 && len(r.Exclude) == 0
 }
 
+// DiscoveredAgent represents a sub-agent whose skills directory was auto-discovered
+// from OpenClaw's workspace/agents/<agent>/ structure.
+type DiscoveredAgent struct {
+	Name         string `json:"name"`
+	AgentDir     string `json:"agent_dir"`
+	SkillsPath   string `json:"skills_path"`
+	LinkedCount  int    `json:"linked_count"`
+	LocalCount   int    `json:"local_count"`
+	ExpectedCount int   `json:"expected_count"`
+	Mode         string `json:"mode"`
+}
+
 // TargetConfig holds configuration for a single target.
 // Legacy flat fields (Path/Mode/Include/Exclude) are kept for backward-compatible
 // YAML reading; migrateTargetConfigs moves them into Skills on load.
@@ -85,6 +97,10 @@ type TargetConfig struct {
 
 	Skills *ResourceTargetConfig `yaml:"skills,omitempty"`
 	Agents *ResourceTargetConfig `yaml:"agents,omitempty"`
+
+	// DiscoveredAgents holds auto-discovered sub-agent entries for OpenClaw.
+	// Populated at runtime by the server, never persisted to YAML.
+	DiscoveredAgents []DiscoveredAgent `yaml:"-" json:"discovered_agents,omitempty"`
 
 	defaultTargetNaming string `yaml:"-"`
 }

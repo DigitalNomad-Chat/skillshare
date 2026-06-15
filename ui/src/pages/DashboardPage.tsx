@@ -163,7 +163,7 @@ export default function DashboardPage() {
 
   return (
     <div className="animate-fade-in">
-      <PageHeader icon={<LayoutDashboard size={24} strokeWidth={2.5} />} title={t("dashboard.title")} subtitle={t("dashboard.subtitle")} />
+      <PageHeader icon={<LayoutDashboard size={24} strokeWidth={2.5} />} title={t("dashboard.title")} help={t("pageHelp.dashboard")} subtitle={t("dashboard.subtitle")} />
 
       {/* Stats grid */}
       <div data-tour="stats-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">

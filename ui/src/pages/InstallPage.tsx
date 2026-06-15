@@ -17,7 +17,7 @@ export default function InstallPage() {
     <div className="space-y-5 animate-fade-in">
       <PageHeader
         icon={<Download size={24} strokeWidth={2.5} />}
-        title={t('install.title')}
+        title={t('install.title')} help={t("pageHelp.install")}
         subtitle={t('install.subtitle')}
       />
 

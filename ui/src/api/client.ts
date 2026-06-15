@@ -287,6 +287,15 @@ export const api = {
       body: JSON.stringify(opts),
     }),
 
+  // OpenClaw sub-agent discovery
+  getOpenClawAgents: () =>
+    apiFetch<{ agents: Target['discoveredAgents'] }>('/targets/openclaw-agents'),
+  persistOpenClawAgent: (agent: string, mode: string) =>
+    apiFetch<{ success: boolean }>('/targets/openclaw-agents/persist', {
+      method: 'POST',
+      body: JSON.stringify({ agent, mode }),
+    }),
+
   // Sync Matrix
   getSyncMatrix: (target?: string) =>
     apiFetch<{ entries: SyncMatrixEntry[] }>(
@@ -466,7 +475,7 @@ export const api = {
     const qs = params.toString();
     return apiFetch<CollectScanResult>(`/collect/scan${qs ? '?' + qs : ''}`);
   },
-  collect: (opts: { skills: { name: string; targetName: string; kind?: string }[]; force?: boolean }) =>
+  collect: (opts: { skills: CollectSkillRef[]; force?: boolean }) =>
     apiFetch<CollectResult>('/collect', {
       method: 'POST',
       body: JSON.stringify(opts),
@@ -806,6 +815,17 @@ export interface Target {
   agentLinkedCount?: number;
   agentLocalCount?: number;
   agentExpectedCount?: number;
+  discoveredAgents?: DiscoveredAgentTarget[];
+}
+
+export interface DiscoveredAgentTarget {
+  name: string;
+  agent_dir: string;
+  skills_path: string;
+  linked_count: number;
+  local_count: number;
+  expected_count: number;
+  mode: string;
 }
 
 export interface SyncResult {
@@ -1024,9 +1044,17 @@ export interface LocalSkillInfo {
   name: string;
   path: string;
   targetName: string;
+  agentName?: string;
   size: number;
   modTime: string;
   kind?: 'skill' | 'agent';
+}
+
+export interface CollectSkillRef {
+  name: string;
+  targetName: string;
+  kind?: 'skill' | 'agent';
+  agentName?: string;
 }
 
 export interface CollectScanTarget {

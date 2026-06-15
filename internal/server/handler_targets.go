@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"slices"
 	"time"
 
 	"skillshare/internal/config"
@@ -35,6 +36,7 @@ type targetItem struct {
 	AgentLinkedCount   *int     `json:"agentLinkedCount,omitempty"`
 	AgentLocalCount    *int     `json:"agentLocalCount,omitempty"`
 	AgentExpectedCount *int     `json:"agentExpectedCount,omitempty"`
+	DiscoveredAgents   []config.DiscoveredAgent `json:"discoveredAgents,omitempty"`
 }
 
 var removeTargetPath = os.Remove
@@ -168,6 +170,18 @@ func (s *Server) handleListTargets(w http.ResponseWriter, r *http.Request) {
 		}
 
 		items = append(items, item)
+	}
+
+	// Auto-discover OpenClaw sub-agents for targets named "openclaw"
+	for i, item := range items {
+		if config.IsOpenClawTarget(item.Name) {
+			agents, err := config.DiscoveredAgentsFromPath(item.Path)
+			if err != nil {
+				// Non-fatal: log but continue without discovered agents
+				fmt.Printf("[skillshare] warn: failed to scan OpenClaw agents: %v\n", err)
+			}
+			items[i].DiscoveredAgents = agents
+		}
 	}
 
 	// Count source skills for drift detection
@@ -536,4 +550,121 @@ func copySkillDir(src, dst string) error {
 		_, err = io.Copy(dstFile, srcFile)
 		return err
 	})
+}
+
+// openClawAgentRequest represents the POST body for persisting tracked agent preferences.
+type openClawAgentRequest struct {
+	Agent string `json:"agent"`
+	Mode  string `json:"mode"`
+}
+
+// handleOpenClawAgents returns the list of auto-discovered OpenClaw sub-agents.
+// GET /api/targets/openclaw-agents
+func (s *Server) handleOpenClawAgents(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		s.mu.RLock()
+		targets := s.cloneTargets()
+		s.mu.RUnlock()
+
+		// Find the openclaw target (could match by name or alias)
+		var openclawPath string
+		for name, tc := range targets {
+			if config.IsOpenClawTarget(name) {
+				openclawPath = tc.SkillsConfig().Path
+				break
+			}
+		}
+		if openclawPath == "" {
+			writeError(w, http.StatusNotFound, "openclaw target not found")
+			return
+		}
+
+		agents, err := config.DiscoveredAgentsFromPath(openclawPath)
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "failed to scan agents: "+err.Error())
+			return
+		}
+
+		writeJSON(w, map[string]any{"agents": agents})
+
+	default:
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+	}
+}
+
+// handlePersistOpenClawAgent persists the user's tracking preference for a sub-agent.
+// POST /api/targets/openclaw-agents/persist
+func (s *Server) handlePersistOpenClawAgent(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	var req openClawAgentRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid JSON body")
+		return
+	}
+
+	if req.Agent == "" {
+		writeError(w, http.StatusBadRequest, "agent name is required")
+		return
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	target, exists := s.cfg.Targets["openclaw"]
+	if !exists {
+		// Try case-insensitive match
+		for name := range s.cfg.Targets {
+			if config.IsOpenClawTarget(name) {
+				target = s.cfg.Targets[name]
+				// Update the key to canonical name
+				delete(s.cfg.Targets, name)
+				s.cfg.Targets["openclaw"] = target
+				exists = true
+				break
+			}
+		}
+	}
+
+	if !exists {
+		writeError(w, http.StatusNotFound, "openclaw target not found")
+		return
+	}
+
+	// Validate mode
+	if req.Mode != "" && !slices.Contains(config.ValidSyncModes, req.Mode) {
+		writeError(w, http.StatusBadRequest, "invalid mode: must be merge, symlink, or copy")
+		return
+	}
+
+	// Update the discovered agent's mode in the current response
+	// (persisted to the openclaw target's DiscoveredAgents in the next listTargets call)
+	found := false
+	for i, agent := range target.DiscoveredAgents {
+		if agent.Name == req.Agent {
+			if req.Mode != "" {
+				target.DiscoveredAgents[i].Mode = req.Mode
+			}
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		writeError(w, http.StatusNotFound, "agent not found: "+req.Agent)
+		return
+	}
+
+	s.cfg.Targets["openclaw"] = target
+
+	if err := s.saveAndReloadConfig(); err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	writeJSON(w, map[string]any{"success": true})
 }

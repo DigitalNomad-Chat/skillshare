@@ -449,7 +449,7 @@ export default function LogPage() {
     <div className="space-y-5 animate-fade-in">
       <PageHeader
         icon={<ScrollText size={24} strokeWidth={2.5} />}
-        title={t('log.title')}
+        title={t('log.title')} help={t("pageHelp.log")}
         subtitle={t('log.subtitle')}
         actions={
           <>

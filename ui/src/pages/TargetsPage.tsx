@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Trash2, Plus, Target, ArrowDownToLine, Search, CircleDot, PenLine, AlertTriangle, X } from 'lucide-react';
+import { Trash2, Plus, Target, ArrowDownToLine, Search, CircleDot, PenLine, AlertTriangle, X, ChevronDown, ChevronRight, Bot, Settings2 } from 'lucide-react';
 import Card from '../components/Card';
 import StatusBadge from '../components/StatusBadge';
 import Button from '../components/Button';
@@ -14,7 +14,7 @@ import { PageSkeleton } from '../components/Skeleton';
 import PageHeader from '../components/PageHeader';
 import { useToast } from '../components/Toast';
 import { api } from '../api/client';
-import type { AvailableTarget, Target as TargetType } from '../api/client';
+import type { AvailableTarget, Target as TargetType, DiscoveredAgentTarget } from '../api/client';
 import { queryKeys, staleTimes } from '../lib/queryKeys';
 import { radius, shadows } from '../design';
 import { shortenHome } from '../lib/paths';
@@ -233,7 +233,7 @@ export default function TargetsPage() {
       {/* Header */}
       <PageHeader
         icon={<Target size={24} strokeWidth={2.5} />}
-        title={t('targets.title')}
+        title={t('targets.title')} help={t("pageHelp.targets")}
         subtitle={targets.length !== 1 ? t('targets.subtitlePlural', { count: targets.length }) : t('targets.subtitle', { count: targets.length })}
         actions={
           <Button
@@ -690,6 +690,14 @@ export default function TargetsPage() {
                     </div>
                   </div>
                 )}
+                {/* ── Discovered OpenClaw Sub-Agents ── */}
+                {(target.discoveredAgents?.length ?? 0) > 0 && (
+                  <DiscoveredAgentsPanel
+                    agents={target.discoveredAgents!}
+                    targetName={target.name}
+                    t={t}
+                  />
+                )}
                 {(target.skippedSkillCount ?? 0) > 0 && (
                   <p className="mt-1 text-xs text-warning flex items-center gap-1">
                     <AlertTriangle size={11} strokeWidth={2.5} />
@@ -754,6 +762,123 @@ export default function TargetsPage() {
 }
 
 /** Clickable row inside the target picker list */
+/** Collapsible panel for discovered OpenClaw sub-agents */
+function DiscoveredAgentsPanel({
+  agents,
+  targetName,
+  t,
+}: {
+  agents: DiscoveredAgentTarget[];
+  targetName: string;
+  t: TFunc;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [openAgents, setOpenAgents] = useState<Record<string, boolean>>({});
+  const queryClient = useQueryClient();
+
+  const handleAgentModeChange = (agentName: string, mode: string) => {
+    api.persistOpenClawAgent(agentName, mode).then(() => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.targets.all });
+    }).catch(() => {});
+  };
+
+  const toggleAgent = (name: string) => {
+    setOpenAgents(prev => ({ ...prev, [name]: !prev[name] }));
+  };
+
+  if (agents.length === 0) return null;
+
+  return (
+    <div className="mt-3">
+      {/* Toggle header */}
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center gap-2 px-4 py-2 text-sm font-bold text-pencil-light hover:text-blue transition-colors"
+        aria-expanded={expanded}
+      >
+        {expanded ? <ChevronDown size={14} strokeWidth={2.5} /> : <ChevronRight size={14} strokeWidth={2.5} />}
+        <Bot size={14} strokeWidth={2.5} className="text-info" />
+        {t('targets.discoveredAgents', { count: agents.length })}
+        <span className="text-xs font-normal text-muted-dark ml-1">({agents.length})</span>
+      </button>
+
+      {/* Agent cards */}
+      {expanded && (
+        <div className="space-y-2 px-4 pb-3">
+          {agents.map((agent) => {
+            const isOpen = openAgents[agent.name];
+            const agentExpected = agent.expected_count ?? 0;
+            const agentLinked = agent.linked_count ?? 0;
+            const agentLocal = agent.local_count ?? 0;
+            const agentMode = agent.mode || 'merge';
+            const hasDrift = agentExpected > 0 && agentLinked !== agentExpected;
+
+            return (
+              <div
+                key={agent.name}
+                className="bg-surface border border-muted-dark/30 rounded-lg overflow-hidden"
+                style={{ borderRadius: radius.sm }}
+              >
+                {/* Agent row */}
+                <button
+                  onClick={() => toggleAgent(agent.name)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-muted/20"
+                >
+                  <ChevronRight
+                    size={12}
+                    strokeWidth={2.5}
+                    className={`text-muted-dark transition-transform ${isOpen ? 'rotate-90' : ''}`}
+                  />
+                  <Bot size={14} strokeWidth={2.5} className="text-info shrink-0" />
+                  <span className="font-bold text-sm text-pencil truncate flex-1">
+                    {t('targets.openclawAgent', { name: agent.name })}
+                  </span>
+                  <span className={`text-xs shrink-0 ${hasDrift ? 'text-warning' : 'text-muted-dark'}`}>
+                    {agentLinked}/{agentExpected}
+                  </span>
+                </button>
+
+                {/* Agent details */}
+                {isOpen && (
+                  <div className="px-3 pb-2.5 pl-10 space-y-1.5">
+                    <p className="font-mono text-xs text-pencil-light truncate">
+                      {shortenHome(agent.skills_path)}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-dark">Mode:</span>
+                      <Select
+                        value={agentMode}
+                        onChange={(mode) => handleAgentModeChange(agent.name, mode)}
+                        options={[
+                          { value: 'merge', label: 'Merge' },
+                          { value: 'copy', label: 'Copy' },
+                          { value: 'symlink', label: 'Symlink' },
+                        ]}
+                        size="sm"
+                        className="w-28"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-dark">
+                      <span>{t('targets.agentSkillsSummary', { linked: agentLinked, local: agentLocal })}</span>
+                      <Link
+                        to={`/targets/${encodeURIComponent(targetName)}/filters?kind=agent`}
+                        className="text-blue hover:underline flex items-center gap-1"
+                      >
+                        <Settings2 size={10} strokeWidth={2.5} />
+                        {t('targets.manageAgentFilters')}
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TargetPickerItem({
   target,
   isDetected,

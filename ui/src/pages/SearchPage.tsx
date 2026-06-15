@@ -367,7 +367,7 @@ export default function SearchPage() {
 
   return (
     <div className="space-y-3 animate-fade-in">
-      <PageHeader icon={<Search size={24} strokeWidth={2.5} />} title={t('search.title')} subtitle={t('search.subtitle')} />
+      <PageHeader icon={<Search size={24} strokeWidth={2.5} />} title={t('search.title')} help={t("pageHelp.search")} subtitle={t('search.subtitle')} />
 
       {/* Mode tabs + search */}
       <div className="flex flex-wrap items-end gap-3">

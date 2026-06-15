@@ -23,7 +23,7 @@ import EmptyState from '../components/EmptyState';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { PageSkeleton } from '../components/Skeleton';
 import { useToast } from '../components/Toast';
-import { api, type CollectScanTarget, type CollectResult } from '../api/client';
+import { api, type CollectScanTarget, type CollectResult, type LocalSkillInfo } from '../api/client';
 import { queryKeys } from '../lib/queryKeys';
 import { radius, shadows } from '../design';
 import { formatSize } from '../lib/format';
@@ -113,7 +113,7 @@ export default function CollectPage() {
       const allKeys = new Set<string>();
       for (const t of res.targets) {
         for (const sk of t.skills) {
-          allKeys.add(`${t.targetName}/${sk.kind ?? 'skill'}/${sk.name}`);
+          allKeys.add(makeCollectKey(t.targetName, sk));
         }
       }
       setSelected(allKeys);
@@ -128,8 +128,8 @@ export default function CollectPage() {
     setPhase('collecting');
     try {
       const skills = Array.from(selected).map((key) => {
-        const [targetName, kind, ...rest] = key.split('/');
-        return { name: rest.join('/'), targetName, kind };
+        const ref = parseCollectKey(key);
+        return { name: ref.name, targetName: ref.targetName, kind: ref.kind as 'skill' | 'agent' | undefined, agentName: ref.agentName };
       });
       const res = await api.collect({ skills, force });
       setResult(res);
@@ -165,7 +165,7 @@ export default function CollectPage() {
       const allKeys = new Set<string>();
       for (const t of scanTargets) {
         for (const sk of t.skills) {
-          allKeys.add(`${t.targetName}/${sk.kind ?? 'skill'}/${sk.name}`);
+          allKeys.add(makeCollectKey(t.targetName, sk));
         }
       }
       setSelected(allKeys);
@@ -176,7 +176,7 @@ export default function CollectPage() {
 
   return (
     <div className="space-y-5 animate-fade-in">
-      <PageHeader icon={<ArrowDownToLine size={24} strokeWidth={2.5} />} title={t('collect.title')} subtitle={t('collect.subtitle')} />
+      <PageHeader icon={<ArrowDownToLine size={24} strokeWidth={2.5} />} title={t('collect.title')} help={t("pageHelp.collect")} subtitle={t('collect.subtitle')} />
 
       {/* Visual Pipeline (reverse direction) */}
       <div className="hidden md:flex items-center justify-center gap-4">
@@ -402,12 +402,14 @@ export default function CollectPage() {
             </p>
             <ul className="list-none space-y-1 max-h-40 overflow-y-auto">
               {Array.from(selected).map((key) => {
-                const [targetName, , ...rest] = key.split('/');
+                const ref = parseCollectKey(key);
+                const displayName = ref.agentName ? `${ref.agentName}/${ref.name}` : ref.name;
+                const displayTarget = ref.agentName ? `${ref.targetName}/${ref.agentName}` : ref.targetName;
                 return (
                   <li key={key} className="flex items-center gap-2 text-sm">
                     <Folder size={12} strokeWidth={2.5} className="text-warning shrink-0" />
-                    <span className="font-mono">{rest.join('/')}</span>
-                    <span className="text-pencil-light">← {targetName}</span>
+                    <span className="font-mono">{displayName}</span>
+                    <span className="text-pencil-light">← {displayTarget}</span>
                   </li>
                 );
               })}
@@ -425,6 +427,34 @@ export default function CollectPage() {
   );
 }
 
+/** Encodes a collect item into a unique selection key.
+ *  For OpenClaw sub-agents the key includes the agent name so the
+ *  backend can route the pull to ~/.openclaw/workspace/agents/<agent>/skills/.
+ */
+function makeCollectKey(targetName: string, sk: LocalSkillInfo): string {
+  const parts = [targetName, sk.kind ?? 'skill'];
+  if (sk.agentName) {
+    parts.push(sk.agentName);
+  }
+  parts.push(sk.name);
+  return parts.join('/');
+}
+
+/** Parses a selection key back into a CollectSkillRef.
+ *  OpenClaw sub-agent keys look like: openclaw/<agent>/skill/<name>
+ *  Regular keys look like: <target>/skill/<name>
+ */
+function parseCollectKey(key: string): { name: string; targetName: string; kind?: string; agentName?: string } {
+  const [targetName, kind, ...rest] = key.split('/');
+  // Detect OpenClaw sub-agent: target is openclaw and there are 2+ remaining parts (agent + name).
+  if (targetName.toLowerCase() === 'openclaw' && rest.length >= 2) {
+    const agentName = rest[0];
+    const name = rest.slice(1).join('/');
+    return { name, targetName, kind, agentName };
+  }
+  return { name: rest.join('/'), targetName, kind };
+}
+
 /** Per-target scan result card with expandable skill list */
 function ScanTargetCard({
   target,
@@ -440,7 +470,8 @@ function ScanTargetCard({
   const t = useT();
   const [expanded, setExpanded] = useState(true);
   const skills = target.skills ?? [];
-  const selectedCount = skills.filter((sk) => selected.has(`${target.targetName}/${sk.kind ?? 'skill'}/${sk.name}`)).length;
+  const selectedCount = skills.filter((sk) => selected.has(makeCollectKey(target.targetName, sk))).length;
+  const isSubAgent = target.targetName.includes('/');
 
   return (
     <Card>
@@ -453,7 +484,7 @@ function ScanTargetCard({
         ) : (
           <ChevronRight size={16} strokeWidth={2.5} className="text-pencil-light shrink-0" />
         )}
-        <Target size={16} strokeWidth={2.5} className="text-success shrink-0" />
+        <Target size={16} strokeWidth={2.5} className={`${isSubAgent ? 'text-accent' : 'text-success'} shrink-0`} />
         <h4
           className="font-bold text-pencil text-left flex-1"
         >
@@ -467,7 +498,7 @@ function ScanTargetCard({
       {expanded && skills.length > 0 && (
         <div className="mt-3 pl-8 space-y-2 animate-fade-in">
           {skills.map((sk) => {
-            const key = `${target.targetName}/${sk.kind ?? 'skill'}/${sk.name}`;
+            const key = makeCollectKey(target.targetName, sk);
             const isSelected = selected.has(key);
             return (
               <div

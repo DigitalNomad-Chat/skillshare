@@ -226,7 +226,7 @@ export default function DoctorPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title={t('doctor.title')}
+          title={t('doctor.title')} help={t("pageHelp.healthCheck")}
           icon={<Stethoscope size={28} strokeWidth={2.5} />}
         />
         <Card>

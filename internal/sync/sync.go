@@ -959,7 +959,7 @@ func CheckStatusMerge(targetPath, sourcePath string) (TargetStatus, int, int) {
 			// It's a symlink/junction - check if it points to somewhere in source
 			absLink, err := utils.ResolveLinkTarget(skillPath)
 			if err != nil {
-				localCount++
+				// Broken symlink - skip; skills are directories, not loose files
 				continue
 			}
 			absSource, _ := filepath.Abs(sourcePath)
@@ -967,10 +967,10 @@ func CheckStatusMerge(targetPath, sourcePath string) (TargetStatus, int, int) {
 			// Check if the symlink target is within the source directory
 			if utils.PathHasPrefix(absLink, absSource+string(filepath.Separator)) || utils.PathsEqual(absLink, absSource) {
 				linkedCount++
-			} else {
-				localCount++
 			}
-		} else {
+			// External symlinks are not counted as local skills
+		} else if entry.IsDir() {
+			// Only count directories as skills; loose files (e.g. *.skill) are ignored
 			localCount++
 		}
 	}

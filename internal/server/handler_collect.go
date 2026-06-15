@@ -2,12 +2,16 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"maps"
 	"net/http"
 	"os"
 	"path/filepath"
+	"slices"
+	"strings"
 	"time"
 
+	"skillshare/internal/config"
 	ssync "skillshare/internal/sync"
 )
 
@@ -18,6 +22,7 @@ type localSkillItem struct {
 	Kind       string `json:"kind,omitempty"`
 	Path       string `json:"path"`
 	TargetName string `json:"targetName"`
+	AgentName  string `json:"agentName,omitempty"`
 	Size       int64  `json:"size"`
 	ModTime    string `json:"modTime"`
 }
@@ -33,6 +38,7 @@ type collectSkillRef struct {
 	Name       string `json:"name"`
 	TargetName string `json:"targetName"`
 	Kind       string `json:"kind,omitempty"`
+	AgentName  string `json:"agentName,omitempty"`
 }
 
 // handleCollectScan scans targets for local (non-symlinked) skills and/or agents.
@@ -61,10 +67,6 @@ func (s *Server) handleCollectScan(w http.ResponseWriter, r *http.Request) {
 	// --- Skill scan ---
 	if kind != kindAgent {
 		for name, target := range targets {
-			if filterTarget != "" && filterTarget != name {
-				continue
-			}
-
 			sc := target.SkillsConfig()
 			mode := ssync.EffectiveMode(sc.Mode)
 			if sc.Mode == "" && globalMode != "" {
@@ -76,15 +78,54 @@ func (s *Server) handleCollectScan(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			for _, sk := range locals {
-				targetItems[name] = append(targetItems[name], localSkillItem{
-					Name:       sk.Name,
-					Kind:       kindSkill,
-					Path:       sk.Path,
-					TargetName: name,
-					Size:       ssync.CalculateDirSize(sk.Path),
-					ModTime:    sk.ModTime.Format(time.RFC3339),
-				})
+			// Only include the base target's skills when no filter is set or the
+			// filter matches the base target name.
+			if filterTarget == "" || filterTarget == name {
+				for _, sk := range locals {
+					targetItems[name] = append(targetItems[name], localSkillItem{
+						Name:       sk.Name,
+						Kind:       kindSkill,
+						Path:       sk.Path,
+						TargetName: name,
+						Size:       ssync.CalculateDirSize(sk.Path),
+						ModTime:    sk.ModTime.Format(time.RFC3339),
+					})
+				}
+			}
+
+			// OpenClaw sub-agent skill discovery: scan ~/.openclaw/workspace/agents/<agent>/skills/
+			if config.IsOpenClawTarget(name) {
+				discoveredAgents, err := config.DiscoveredAgentsFromPath(sc.Path)
+				if err != nil {
+					// Non-fatal: log and continue without sub-agent skills.
+					fmt.Printf("[skillshare] warn: failed to scan OpenClaw sub-agents for collect: %v\n", err)
+				}
+				for _, agent := range discoveredAgents {
+					agentTargetName := name + "/" + agent.Name
+					if filterTarget != "" {
+						// Allow filtering by either the base target ("openclaw") or the
+						// synthetic sub-agent target ("openclaw/<agent>").
+						if filterTarget != name && filterTarget != agentTargetName {
+							continue
+						}
+					}
+					agentLocals, err := ssync.FindLocalSkills(agent.SkillsPath, source, mode)
+					if err != nil {
+						writeError(w, http.StatusInternalServerError, "scan failed for "+agentTargetName+": "+err.Error())
+						return
+					}
+					for _, sk := range agentLocals {
+						targetItems[agentTargetName] = append(targetItems[agentTargetName], localSkillItem{
+							Name:       sk.Name,
+							Kind:       kindSkill,
+							Path:       sk.Path,
+							TargetName: name,
+							AgentName:  agent.Name,
+							Size:       ssync.CalculateDirSize(sk.Path),
+							ModTime:    sk.ModTime.Format(time.RFC3339),
+						})
+					}
+				}
 			}
 		}
 	}
@@ -126,8 +167,27 @@ func (s *Server) handleCollectScan(w http.ResponseWriter, r *http.Request) {
 
 	// Build response from merged map.
 	var scanTargets []scanTarget
+	// Include both configured targets and synthetic OpenClaw sub-agent targets.
+	allTargetNames := make([]string, 0, len(targets)+len(targetItems))
+	seen := make(map[string]struct{}, len(targets)+len(targetItems))
 	for name := range targets {
+		if _, ok := seen[name]; !ok {
+			seen[name] = struct{}{}
+			allTargetNames = append(allTargetNames, name)
+		}
+	}
+	for name := range targetItems {
+		if _, ok := seen[name]; !ok {
+			seen[name] = struct{}{}
+			allTargetNames = append(allTargetNames, name)
+		}
+	}
+	slices.Sort(allTargetNames)
+	for _, name := range allTargetNames {
 		items := targetItems[name]
+		if filterTarget != "" && filterTarget != name {
+			continue
+		}
 		if len(items) == 0 && kind != "" {
 			// When filtering by kind, skip targets with no items of that kind.
 			continue
@@ -195,13 +255,35 @@ func (s *Server) handleCollect(w http.ResponseWriter, r *http.Request) {
 	if len(skillRefs) > 0 {
 		var resolved []ssync.LocalSkillInfo
 		for _, ref := range skillRefs {
-			target, ok := s.cfg.Targets[ref.TargetName]
+			targetName := ref.TargetName
+			agentName := ""
+			// Support OpenClaw synthetic target names like "openclaw/<agent>".
+			if strings.Contains(targetName, "/") {
+				parts := strings.SplitN(targetName, "/", 2)
+				if config.IsOpenClawTarget(parts[0]) {
+					targetName = parts[0]
+					agentName = parts[1]
+				}
+			}
+
+			target, ok := s.cfg.Targets[targetName]
 			if !ok {
-				writeError(w, http.StatusBadRequest, "unknown target: "+ref.TargetName)
+				writeError(w, http.StatusBadRequest, "unknown target: "+targetName)
 				return
 			}
 
-			skillPath := filepath.Join(target.SkillsConfig().Path, ref.Name)
+			// Agent name from explicit field takes precedence over parsing targetName.
+			if ref.AgentName != "" {
+				agentName = ref.AgentName
+			}
+
+			skillsPath := target.SkillsConfig().Path
+			if agentName != "" {
+				// Resolve sub-agent skills directory from the OpenClaw root path.
+				skillsPath = filepath.Join(config.GetOpenClawBasePath(skillsPath), "workspace", "agents", agentName, "skills")
+			}
+
+			skillPath := filepath.Join(skillsPath, ref.Name)
 			info, err := os.Lstat(skillPath)
 			if err != nil {
 				writeError(w, http.StatusBadRequest, "skill not found: "+ref.Name+" in "+ref.TargetName)
@@ -219,7 +301,7 @@ func (s *Server) handleCollect(w http.ResponseWriter, r *http.Request) {
 			resolved = append(resolved, ssync.LocalSkillInfo{
 				Name:       ref.Name,
 				Path:       skillPath,
-				TargetName: ref.TargetName,
+				TargetName: targetName,
 			})
 		}
 

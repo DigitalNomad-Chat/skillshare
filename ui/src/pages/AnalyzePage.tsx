@@ -130,7 +130,7 @@ export default function AnalyzePage() {
       <div className="space-y-6">
         <PageHeader
           icon={<BarChart3 size={24} strokeWidth={2.5} />}
-          title={t('analyze.title')}
+          title={t('analyze.title')} help={t("pageHelp.analyze")}
           subtitle={t('analyze.loading')}
         />
         <PageSkeleton />

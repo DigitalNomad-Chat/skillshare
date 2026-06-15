@@ -139,7 +139,7 @@ export default function TrashPage() {
     <div className="space-y-5 animate-fade-in">
       <PageHeader
         icon={<Trash2 size={24} strokeWidth={2.5} />}
-        title={t('trash.title')}
+        title={t('trash.title')} help={t("pageHelp.trash")}
         subtitle={isProjectMode
           ? t('trash.subtitle.project')
           : t('trash.subtitle.global')}
